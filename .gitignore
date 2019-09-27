@@ -2,6 +2,7 @@ weights/
 data/
 tmp/
 external/
+!utils/*.so
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
