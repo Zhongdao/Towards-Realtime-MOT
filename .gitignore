@@ -2,7 +2,6 @@ weights/
 data/
 tmp/
 external/
-!utils/*.so
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -10,6 +9,7 @@ __pycache__/
 
 # C extensions
 *.so
+!utils/*.so
 
 # Distribution / packaging
 .Python
