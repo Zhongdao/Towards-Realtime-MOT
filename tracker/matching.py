@@ -25,8 +25,6 @@ def merge_matches(m1, m2, shape):
     return match, unmatched_O, unmatched_Q
 
 
-
-
 def _indices_to_matches(cost_matrix, indices, thresh):
     matched_cost = cost_matrix[tuple(zip(*indices))]
     matched_mask = (matched_cost <= thresh)
@@ -93,23 +91,6 @@ def iou_distance(atracks, btracks):
     cost_matrix = 1 - _ious
 
     return cost_matrix
-
-#def embedding_distance(tracks, detections, metric='cosine'):
-#    """
-#    :param tracks: list[STrack]
-#    :param detections: list[BaseTrack]
-#    :param metric:
-#    :return: cost_matrix np.ndarray
-#    """
-#
-#    cost_matrix = np.zeros((len(tracks), len(detections)), dtype=np.float)
-#    if cost_matrix.size == 0:
-#        return cost_matrix
-#    det_features = np.asarray([track.curr_feat for track in detections], dtype=np.float)
-#    for i, track in enumerate(tracks):
-#        #cost_matrix[i, :] = np.maximum(0.0, cdist(track.features, det_features, metric).min(axis=0))
-#        cost_matrix[i, :] = np.maximum(0.0, cdist(track.features, det_features, metric).min(axis=0))
-#    return cost_matrix
 
 def embedding_distance(tracks, detections, metric='cosine'):
     """

@@ -5,7 +5,7 @@ import logging
 import argparse
 import motmetrics as mm
 
-from tracker.mot_tracker_kalman import AETracker
+from tracker.multitracker import JDETracker
 from utils import visualization as vis
 from utils.log import logger
 from utils.timer import Timer
@@ -44,7 +44,7 @@ def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_im
     if save_dir is not None:
         mkdirs(save_dir)
 
-    tracker = AETracker(opt, frame_rate=frame_rate)
+    tracker = JDETracker(opt, frame_rate=frame_rate)
     timer = Timer()
     results = []
     frame_id = 0
@@ -81,8 +81,8 @@ def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_im
     return frame_id
 
 
-def main(opt, data_root='/data/MOT16/train', det_root=None,
-         seqs=('MOT16-05',), exp_name='demo', save_image=False, show_image=True):
+def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), exp_name='demo', 
+         save_images=False, save_videos=False, show_image=True):
     logger.setLevel(logging.INFO)
     result_root = os.path.join(data_root, '..', 'results', exp_name)
     mkdirs(result_root)
@@ -94,7 +94,7 @@ def main(opt, data_root='/data/MOT16/train', det_root=None,
     n_frame = 0
     timer.tic()
     for seq in seqs:
-        output_dir = os.path.join(data_root, '..','outputs', exp_name, seq) if save_image else None
+        output_dir = os.path.join(data_root, '..','outputs', exp_name, seq) if save_images or save_videos else None
 
         logger.info('start seq: {}'.format(seq))
         dataloader = datasets.LoadImages(osp.join(data_root, seq, 'img1'), opt.img_size)
@@ -108,6 +108,10 @@ def main(opt, data_root='/data/MOT16/train', det_root=None,
         logger.info('Evaluate seq: {}'.format(seq))
         evaluator = Evaluator(data_root, seq, data_type)
         accs.append(evaluator.eval_file(result_filename))
+        if save_videos:
+            output_video_path = osp.join(output_dir, '{}.mp4'.format(seq))
+            cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -c:v copy {}'.format(output_dir, output_video_path)
+            os.system(cmd_str)
     timer.toc()
     logger.info('Time elapsed: {}, FPS {}'.format(timer.average_time, n_frame / timer.average_time))
 
@@ -131,7 +135,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=8, help='size of each image batch')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
-    parser.add_argument('--img-size', type=int, default=(864,480), help='size of each image dimension')
+    parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
@@ -139,7 +143,8 @@ if __name__ == '__main__':
     parser.add_argument('--pixel-mean', type=float, default=[0,0,0], nargs='+', help='pixel mean')
     parser.add_argument('--track-buffer', type=int, default=30, help='tracking buffer')
     parser.add_argument('--test-mot16', action='store_true', help='tracking buffer')
-    parser.add_argument('--save-images', action='store_true', help='save tracking results')
+    parser.add_argument('--save-images', action='store_true', help='save tracking results (image)')
+    parser.add_argument('--save-videos', action='store_true', help='save tracking results (video)')
     opt = parser.parse_args()
     print(opt, end='\n\n')
  
@@ -157,14 +162,14 @@ if __name__ == '__main__':
                      MOT16-08
                      MOT16-12
                      MOT16-14'''
-        #seqs_str = 'MOT16-14'
         data_root = '/home/wangzd/datasets/MOT/MOT16/test'
     seqs = [seq.strip() for seq in seqs_str.split()]
 
     main(opt,
          data_root=data_root,
          seqs=seqs,
-         exp_name='darknet53.864x480',
+         exp_name='darknet53',
          show_image=False,
-         save_image=opt.save_images)
+         save_images=opt.save_images, 
+         save_videos=opt.save_videos)
 

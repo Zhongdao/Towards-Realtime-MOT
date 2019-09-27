@@ -9,8 +9,6 @@ from utils.syncbn import SyncBN
 import time
 import math
 
-ONNX_EXPORT = False
-
 batch_norm=SyncBN #nn.BatchNorm2d
 
 def create_modules(module_defs):
@@ -184,9 +182,10 @@ class YOLOLayer(nn.Module):
                 lid =  self.IDLoss(logits, tids.squeeze())
 
             # Sum loss components
-            loss = torch.exp(-self.s_r)*lbox + torch.exp(-self.s_c)*lconf + torch.exp(-self.s_id)*lid + \
-                   (self.s_r + self.s_c + self.s_id)
-            loss *= 0.5
+            #loss = torch.exp(-self.s_r)*lbox + torch.exp(-self.s_c)*lconf + torch.exp(-self.s_id)*lid + \
+            #       (self.s_r + self.s_c + self.s_id)
+            #loss *= 0.5
+            loss = lbox + lconf + lid
 
             return loss, loss.item(), lbox.item(), lconf.item(), lid.item(), nT
 
