@@ -52,27 +52,6 @@ def model_info(model):  # Plots a line-by-line description of a PyTorch model
     print('Model Summary: %g layers, %g parameters, %g gradients\n' % (i + 1, n_p, n_g))
 
 
-def coco_class_weights():  # frequency of each class in coco train2014
-    weights = 1 / torch.FloatTensor(
-        [187437, 4955, 30920, 6033, 3838, 4332, 3160, 7051, 7677, 9167, 1316, 1372, 833, 6757, 7355, 3302, 3776, 4671,
-         6769, 5706, 3908, 903, 3686, 3596, 6200, 7920, 8779, 4505, 4272, 1862, 4698, 1962, 4403, 6659, 2402, 2689,
-         4012, 4175, 3411, 17048, 5637, 14553, 3923, 5539, 4289, 10084, 7018, 4314, 3099, 4638, 4939, 5543, 2038, 4004,
-         5053, 4578, 27292, 4113, 5931, 2905, 11174, 2873, 4036, 3415, 1517, 4122, 1980, 4464, 1190, 2302, 156, 3933,
-         1877, 17630, 4337, 4624, 1075, 3468, 135, 1380])
-    weights /= weights.sum()
-    return weights
-
-
-def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
-    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
-    # a = np.loadtxt('data/coco.names', dtype='str', delimiter='\n')
-    # b = np.loadtxt('data/coco_paper.names', dtype='str', delimiter='\n')
-    # x = [list(a[i] == b).index(True) + 1 for i in range(80)]  # darknet to coco
-    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34,
-         35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-         64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
-    return x
-
 
 def plot_one_box(x, img, color=None, label=None, line_thickness=None):  # Plots one bounding box on image img
     tl = line_thickness or round(0.0004 * max(img.shape[0:2])) + 1  # line thickness
@@ -503,28 +482,6 @@ def strip_optimizer_from_checkpoint(filename='weights/best.pt'):
     a = torch.load(filename, map_location='cpu')
     a['optimizer'] = []
     torch.save(a, filename.replace('.pt', '_lite.pt'))
-
-
-def coco_class_count(path='../coco/labels/train2014/'):
-    # histogram of occurrences per class
-
-    nC = 80  # number classes
-    x = np.zeros(nC, dtype='int32')
-    files = sorted(glob.glob('%s/*.*' % path))
-    for i, file in enumerate(files):
-        labels = np.loadtxt(file, dtype=np.float32).reshape(-1, 5)
-        x += np.bincount(labels[:, 0].astype('int32'), minlength=nC)
-        print(i, len(files))
-
-
-def coco_only_people(path='../coco/labels/val2014/'):
-    # find images with only people
-
-    files = sorted(glob.glob('%s/*.*' % path))
-    for i, file in enumerate(files):
-        labels = np.loadtxt(file, dtype=np.float32).reshape(-1, 5)
-        if all(labels[:, 0] == 0):
-            print(labels.shape[0], file)
 
 
 def plot_results():

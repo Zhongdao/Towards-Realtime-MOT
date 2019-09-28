@@ -12,11 +12,8 @@ from utils.timer import Timer
 from utils.evaluation import Evaluator
 import utils.datasets as datasets
 import torch
+from utils.utils import *
 
-def mkdirs(path):
-    if os.path.exists(path):
-        return
-    os.makedirs(path)
 
 def write_results(filename, results, data_type):
     if data_type == 'mot':
@@ -41,9 +38,7 @@ def write_results(filename, results, data_type):
 
 
 def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_image=True, frame_rate=30):
-    if save_dir is not None:
-        mkdirs(save_dir)
-
+    mkdir_if_missing(save_dir)
     tracker = JDETracker(opt, frame_rate=frame_rate)
     timer = Timer()
     results = []
@@ -85,7 +80,7 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
          save_images=False, save_videos=False, show_image=True):
     logger.setLevel(logging.INFO)
     result_root = os.path.join(data_root, '..', 'results', exp_name)
-    mkdirs(result_root)
+    mkdir_if_missing(result_root)
     data_type = 'mot'
 
     # run tracking
@@ -131,8 +126,7 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='test.py')
-    parser.add_argument('--batch-size', type=int, default=8, help='size of each image batch')
+    parser = argparse.ArgumentParser(prog='track.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
     parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
@@ -140,7 +134,6 @@ if __name__ == '__main__':
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
     parser.add_argument('--min-box-area', type=float, default=200, help='filter out tiny boxes')
-    parser.add_argument('--pixel-mean', type=float, default=[0,0,0], nargs='+', help='pixel mean')
     parser.add_argument('--track-buffer', type=int, default=30, help='tracking buffer')
     parser.add_argument('--test-mot16', action='store_true', help='tracking buffer')
     parser.add_argument('--save-images', action='store_true', help='save tracking results (image)')
