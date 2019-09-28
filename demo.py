@@ -8,6 +8,7 @@ import motmetrics as mm
 from tracker.multitracker import JDETracker
 from utils import visualization as vis
 from utils.utils import *
+from utils.io import read_results
 from utils.log import logger
 from utils.timer import Timer
 from utils.evaluation import Evaluator
@@ -43,7 +44,6 @@ def track(opt):
         cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -c:v copy {}'.format(osp.join(result_root, 'frame'), output_video_path)
         os.system(cmd_str)
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='demo.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     parser.add_argument('--min-box-area', type=float, default=200, help='filter out tiny boxes')
     parser.add_argument('--track-buffer', type=int, default=30, help='tracking buffer')
     parser.add_argument('--input-video', type=str, help='path to the input video')
-    parser.add_argument('--output-format', type=str, default='video', help='expected output format, can be video, tracklet or text')
+    parser.add_argument('--output-format', type=str, default='video', help='expected output format, can be video, or text')
     parser.add_argument('--output-root', type=str, default='results', help='expected output root path')
     opt = parser.parse_args()
     print(opt, end='\n\n')
