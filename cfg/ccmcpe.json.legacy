@@ -1,0 +1,22 @@
+{
+    "train":
+    {
+        "mot17":"./data/mot17.train",
+        "caltech":"./data/caltech.train",
+        "citypersons":"./data/citypersons.train",
+        "cuhksysu":"./data/cuhksysu.train",
+        "prw":"./data/prw.train",
+        "eth":"./data/eth.train"
+    },
+    "test_emb":
+    {
+        "caltech":"./data/caltech.val",
+        "cuhksysu":"./data/cuhksysu.val",
+        "prw":"./data/prw.val"
+    },
+    "test":
+    {
+        "caltech+citypersons":"./data/caltech+citypersons.val"
+    },
+    "names": "./data/mot.names"
+}

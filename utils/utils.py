@@ -12,7 +12,6 @@ import torch.nn.functional as F
 
 from utils import torch_utils
 import maskrcnn_benchmark.layers.nms as nms
-from external.lib.nms.cpu_nms import cpu_soft_nms
 # Set printoptions
 torch.set_printoptions(linewidth=1320, precision=5, profile='long')
 np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format})  # format short g, %precision=5

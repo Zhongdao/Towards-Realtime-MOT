@@ -185,7 +185,7 @@ class YOLOLayer(nn.Module):
             #loss = torch.exp(-self.s_r)*lbox + torch.exp(-self.s_c)*lconf + torch.exp(-self.s_id)*lid + \
             #       (self.s_r + self.s_c + self.s_id)
             #loss *= 0.5
-            loss = lbox + lconf + lid
+            loss = 1*lbox + 1*lconf + 1*lid
 
             return loss, loss.item(), lbox.item(), lconf.item(), lid.item(), nT
 

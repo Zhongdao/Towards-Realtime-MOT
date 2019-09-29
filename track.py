@@ -153,7 +153,13 @@ if __name__ == '__main__':
                       CVPR19-02
                       CVPR19-03
                       CVPR19-05'''
-        data_root = '/home/wangzd/datasets/MOT/MOT19/train'
+        seqs_str = '''KITTI-13
+                      KITTI-17
+                      ADL-Rundle-6
+                      PETS09-S2L1
+                      TUD-Campus
+                      TUD-Stadtmitte'''
+        data_root = '/home/liuyx/datasets/MOT/MOT15/train'
     else:
         seqs_str = '''MOT16-01
                      MOT16-03
@@ -162,13 +168,13 @@ if __name__ == '__main__':
                      MOT16-08
                      MOT16-12
                      MOT16-14'''
-        data_root = '/home/wangzd/datasets/MOT/MOT16/test'
+        data_root = '/home/liuyx/datasets/MOT/MOT16/test'
     seqs = [seq.strip() for seq in seqs_str.split()]
 
     main(opt,
          data_root=data_root,
          seqs=seqs,
-         exp_name='darknet53',
+         exp_name=opt.weights.split('/')[-2],
          show_image=False,
          save_images=opt.save_images, 
          save_videos=opt.save_videos)
