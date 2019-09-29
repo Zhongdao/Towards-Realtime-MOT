@@ -38,7 +38,8 @@ def write_results(filename, results, data_type):
 
 
 def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_image=True, frame_rate=30):
-    mkdir_if_missing(save_dir)
+    if save_dir:
+        mkdir_if_missing(save_dir)
     tracker = JDETracker(opt, frame_rate=frame_rate)
     timer = Timer()
     results = []

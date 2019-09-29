@@ -55,7 +55,6 @@ def test(
     outputs, mAPs, mR, mP, TP, confidence, pred_class, target_class, jdict = \
         [], [], [], [], [], [], [], [], []
     AP_accum, AP_accum_count = np.zeros(nC), np.zeros(nC)
-    coco91class = coco80_to_coco91_class()
     for batch_i, (imgs, targets, paths, shapes, targets_len) in enumerate(dataloader):
         t = time.time()
         output = model(imgs.cuda())
