@@ -1,5 +1,5 @@
 # Towards-Realtime-MOT
-Still in progress, will update constantly, thank you for your attention!
+**NOTE:** Still in progress, will update constantly, thank you for your attention!
 
 ## Introduction
 This repo is the a codebase of the Joint Detection and Embedding (JDE) model. JDE is a fast and high-performance multiple-object tracker that learns the object detection task and appearance embedding task simutaneously in a shared neural network. Techical details are described in our [arXiv preprint paper](https://arxiv.org). By using this repo, you can simply achieve **MOTA 64%+** on the "private" protocol of [MOT-16 challenge](https://motchallenge.net/tracker/JDE), and with a near real-time speed at **18~24 FPS** (Note this speed is for the entire system, including the detection step! ) .
