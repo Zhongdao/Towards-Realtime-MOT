@@ -153,7 +153,7 @@ if __name__ == '__main__':
                       PETS09-S2L1
                       TUD-Campus
                       TUD-Stadtmitte'''
-        data_root = '/home/liuyx/datasets/MOT/MOT15/train'
+        data_root = '/home/wangzd/datasets/MOT/MOT15/train'
     else:
         seqs_str = '''MOT16-01
                      MOT16-03
@@ -162,7 +162,7 @@ if __name__ == '__main__':
                      MOT16-08
                      MOT16-12
                      MOT16-14'''
-        data_root = '/home/liuyx/datasets/MOT/MOT16/test'
+        data_root = '/home/wangzd/datasets/MOT/MOT16/test'
     seqs = [seq.strip() for seq in seqs_str.split()]
 
     main(opt,
