@@ -74,7 +74,7 @@ def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_im
         frame_id += 1
     # save results
     write_results(result_filename, results, data_type)
-    return frame_id
+    return frame_id, timer.average_time, timer.calls
 
 
 def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), exp_name='demo', 
@@ -85,10 +85,9 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
     data_type = 'mot'
 
     # run tracking
-    timer = Timer()
     accs = []
     n_frame = 0
-    timer.tic()
+    timer_avgs, timer_calls = [], []
     for seq in seqs:
         output_dir = os.path.join(data_root, '..','outputs', exp_name, seq) if save_images or save_videos else None
 
@@ -97,8 +96,11 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
         result_filename = os.path.join(result_root, '{}.txt'.format(seq))
         meta_info = open(os.path.join(data_root, seq, 'seqinfo.ini')).read() 
         frame_rate = int(meta_info[meta_info.find('frameRate')+10:meta_info.find('\nseqLength')])
-        n_frame += eval_seq(opt, dataloader, data_type, result_filename,
-                            save_dir=output_dir, show_image=show_image, frame_rate=frame_rate)
+        nf, ta, tc = eval_seq(opt, dataloader, data_type, result_filename,
+                              save_dir=output_dir, show_image=show_image, frame_rate=frame_rate)
+        n_frame += nf
+        timer_avgs.append(ta)
+        timer_calls.append(tc)
 
         # eval
         logger.info('Evaluate seq: {}'.format(seq))
@@ -108,11 +110,13 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
             output_video_path = osp.join(output_dir, '{}.mp4'.format(seq))
             cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -c:v copy {}'.format(output_dir, output_video_path)
             os.system(cmd_str)
-    timer.toc()
-    logger.info('Time elapsed: {}, FPS {}'.format(timer.average_time, n_frame / timer.average_time))
+    timer_avgs = np.asarray(timer_avgs)
+    timer_calls = np.asarray(timer_calls)
+    all_time = np.dot(timer_avgs, timer_calls)
+    avg_time = all_time / np.sum(timer_calls)
+    logger.info('Time elapsed: {:.2f} seconds, FPS: {:.2f}'.format(all_time, 1.0 / avg_time))
 
     # get summary
-    # metrics = ['mota', 'num_switches', 'idp', 'idr', 'idf1', 'precision', 'recall']
     metrics = mm.metrics.motchallenge_metrics
     mh = mm.metrics.create()
     summary = Evaluator.get_summary(accs, seqs, metrics)
@@ -143,10 +147,6 @@ if __name__ == '__main__':
     print(opt, end='\n\n')
  
     if not opt.test_mot16:
-        seqs_str = '''CVPR19-01
-                      CVPR19-02
-                      CVPR19-03
-                      CVPR19-05'''
         seqs_str = '''KITTI-13
                       KITTI-17
                       ADL-Rundle-6
@@ -162,6 +162,8 @@ if __name__ == '__main__':
                      MOT16-08
                      MOT16-12
                      MOT16-14'''
+        seqs_str = '''MOT16-01
+        MOT16-07'''
         data_root = '/home/wangzd/datasets/MOT/MOT16/test'
     seqs = [seq.strip() for seq in seqs_str.split()]
 

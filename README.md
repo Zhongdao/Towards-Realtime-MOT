@@ -28,7 +28,7 @@ Will be released later.
 ## Pretrained model and baseline models
 Darknet-53 ImageNet pretrained: [[DarkNet Official]](https://pjreddie.com/media/files/darknet53.conv.74)
 
-JDE uncertainty-weighted: [[Google Drive]]()(Coming soon) [[Baidu NetDisk]](https://pan.baidu.com/s/1Ifgn0Y_JZE65_qSrQM2l-Q)
+JDE-1088x608-uncertainty: [[Google Drive]]()(Coming soon) [[Baidu NetDisk]](https://pan.baidu.com/s/1Ifgn0Y_JZE65_qSrQM2l-Q)
 ## Test on MOT-16 Challenge
 
 ## Training
