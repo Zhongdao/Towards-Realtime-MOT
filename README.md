@@ -15,11 +15,20 @@ We hope this repo will help researches/engineers to develop more practical MOT s
 * ffmpeg (Optional, used in the video demo)
 
 ## Video Demo
+<img src="assets/MOT16-03.gif" width="400"/>   <img src="assets/MOT16-14.gif" width="400"/>
+<img src="assets/IMG_0055.gif" width="400"/>   <img src="assets/000011-00001.gif" width="400"/>
 
+Usage:
+```
+python demo.py --input-video path/to/your/input/video --weights path/to/model/weights
+               --output-format video --output-root path/to/output/root
+```
 ## Dataset zoo
+Will be released later.
+## Pretrained model and baseline models
+Darknet-53 ImageNet pretrained: [[DarkNet Official]](https://pjreddie.com/media/files/darknet53.conv.74)
 
-## Pretrained Models
-
+JDE uncertainty-weighted: [[Google Drive]]()(Coming soon) [[Baidu NetDisk]](https://pan.baidu.com/s/1Ifgn0Y_JZE65_qSrQM2l-Q)
 ## Test on MOT-16 Challenge
 
 ## Training
