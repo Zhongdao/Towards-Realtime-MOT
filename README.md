@@ -13,6 +13,7 @@ We hope this repo will help researches/engineers to develop more practical MOT s
 * [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) (Their GPU NMS is used in this project)
 * python-opencv
 * ffmpeg (Optional, used in the video demo)
+* [py-motmetrics](https://github.com/cheind/py-motmetrics) (Simply `pip install motmetrics`)
 
 ## Video Demo
 <img src="assets/MOT16-03.gif" width="400"/>   <img src="assets/MOT16-14.gif" width="400"/>
