@@ -14,9 +14,10 @@
         "cuhksysu":"./data/cuhksysu.val",
         "prw":"./data/prw.val"
     },
-
     "test":
     {
-        "mot19.train":"./data/mot19.train"
-    }
+        "caltech+citypersons":"./data/caltech.val",
+        "citypersons":"./data/citypersons.val"
+    },
+    "names": "./data/mot.names"
 }

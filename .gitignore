@@ -1,6 +1,7 @@
 results/
 weights/
-data/
+data/mot17
+data/mot19
 tmp/
 external/
 =======
