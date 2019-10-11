@@ -17,7 +17,8 @@
     },
     "test":
     {
-        "caltech+citypersons":"./data/caltech.val",
+        "mot19":"./data/mot19.train",
+        "caltech":"./data/caltech.val",
         "citypersons":"./data/citypersons.val"
     }
 }
