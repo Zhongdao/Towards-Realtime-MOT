@@ -2,10 +2,11 @@ import argparse
 import json
 import time
 
-import test  # Import test.py to get mAP after each epoch
+import test  
 from models import *
 from utils.datasets import JointDataset, collate_fn
 from utils.utils import *
+from utils.log import logger
 from torchvision.transforms import transforms as T
 
 
@@ -18,13 +19,11 @@ def train(
         batch_size=16,
         accumulated_batches=1,
         freeze_backbone=False,
-        var=0,
         opt=None,
 ):
-    weights = 'weights' + os.sep
-    latest = weights + 'latest.pt'
-    best = weights + 'best.pt'
-    device = torch_utils.select_device()
+    weights = 'weights' 
+    mkdir_if_missing(weights)
+    latest = osp.join(weights, 'latest.pt')
 
     torch.backends.cudnn.benchmark = True  # unsuitable for multiscale
 
@@ -45,40 +44,37 @@ def train(
     # Initialize model
     model = Darknet(cfg, img_size, dataset.nID)
 
-    lr0 = opt.lr
     cutoff = -1  # backbone reaches to cutoff layer
     start_epoch = 0
-    best_loss = float('inf')
     if resume:
         checkpoint = torch.load(latest, map_location='cpu')
 
         # Load weights to resume from
         model.load_state_dict(checkpoint['model'])
-        model.to(device).train()
+        model.cuda().train()
 
         # Set optimizer
-        optimizer = torch.optim.SGD(filter(lambda x: x.requires_grad, model.parameters()), lr=lr0, momentum=.9)
+        optimizer = torch.optim.SGD(filter(lambda x: x.requires_grad, model.parameters()), lr=opt.lr, momentum=.9)
 
         start_epoch = checkpoint['epoch'] + 1
         if checkpoint['optimizer'] is not None:
             optimizer.load_state_dict(checkpoint['optimizer'])
-            best_loss = checkpoint['best_loss']
 
         del checkpoint  # current, saved
 
     else:
         # Initialize model with backbone (optional)
         if cfg.endswith('yolov3.cfg'):
-            load_darknet_weights(model, weights + 'darknet53.conv.74')
+            load_darknet_weights(model, osp.join(weights ,'darknet53.conv.74'))
             cutoff = 75
         elif cfg.endswith('yolov3-tiny.cfg'):
-            load_darknet_weights(model, weights + 'yolov3-tiny.conv.15')
+            load_darknet_weights(model, osp.join(weights , 'yolov3-tiny.conv.15'))
             cutoff = 15
 
-        model.to(device).train()
+        model.cuda().train()
 
         # Set optimizer
-        optimizer = torch.optim.SGD(filter(lambda x: x.requires_grad, model.parameters()), lr=lr0, momentum=.9, weight_decay=1e-4)
+        optimizer = torch.optim.SGD(filter(lambda x: x.requires_grad, model.parameters()), lr=opt.lr, momentum=.9, weight_decay=1e-4)
 
     model = torch.nn.DataParallel(model)
     # Set scheduler
@@ -95,7 +91,7 @@ def train(
     for epoch in range(epochs):
         epoch += start_epoch
 
-        print(('%8s%12s' + '%10s' * 6) % (
+        logger.info(('%8s%12s' + '%10s' * 6) % (
             'Epoch', 'Batch', 'box', 'conf', 'id', 'total', 'nTargets', 'time'))
 
         # Update scheduler (automatic)
@@ -118,7 +114,7 @@ def train(
             # SGD burn-in
             burnin = min(1000, len(dataloader))
             if (epoch == 0) & (i <= burnin):
-                lr = lr0 * (i / burnin) **4 
+                lr = opt.lr * (i / burnin) **4 
                 for g in optimizer.param_groups:
                     g['lr'] = lr
 
@@ -148,12 +144,11 @@ def train(
                 rloss['nT'], time.time() - t0)
             t0 = time.time()
             if i % opt.print_interval == 0:
-                print(s)
+                logger.info(s)
 
 
         # Save latest checkpoint
         checkpoint = {'epoch': epoch,
-        #              'best_loss': best_loss,
                       'model': model.module.state_dict(),
                       'optimizer': optimizer.state_dict()}
         torch.save(checkpoint, latest)
@@ -176,14 +171,11 @@ if __name__ == '__main__':
     parser.add_argument('--data-cfg', type=str, default='cfg/ccmcpe.json', help='coco.data file path')
     parser.add_argument('--img-size', type=int, default=(1088, 608), help='pixels')
     parser.add_argument('--resume', action='store_true', help='resume training flag')
-    parser.add_argument('--var', type=float, default=0, help='test variable')
     parser.add_argument('--print-interval', type=int, default=40, help='print interval')
     parser.add_argument('--test-interval', type=int, default=9, help='test interval')
     parser.add_argument('--lr', type=float, default=1e-2, help='init lr')
-    parser.add_argument('--idw', type=float, default=0.1, help='loss id weight')
     parser.add_argument('--unfreeze-bn', action='store_true', help='unfreeze bn')
     opt = parser.parse_args()
-    print(opt, end='\n\n')
 
     init_seeds()
 
@@ -195,6 +187,5 @@ if __name__ == '__main__':
         epochs=opt.epochs,
         batch_size=opt.batch_size,
         accumulated_batches=opt.accumulated_batches,
-        var=opt.var,
         opt=opt,
     )
