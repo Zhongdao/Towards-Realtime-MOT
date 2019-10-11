@@ -1,6 +1,6 @@
 # Towards-Realtime-MOT
 **NEWS:** 
-- **[2019.10.11]** Training and evaluation data uploaded! Please see [DATASET_ZOO.MD](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.MD) for details.
+- **[2019.10.11]** Training and evaluation data uploaded! Please see [DATASET_ZOO.md](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md) for details.
 - **[2019.10.01]** Demo code and pre-trained model released!
 
 ## Introduction
@@ -27,7 +27,7 @@ python demo.py --input-video path/to/your/input/video --weights path/to/model/we
                --output-format video --output-root path/to/output/root
 ```
 ## Dataset zoo
-Please see [DATASET_ZOO.MD](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.MD) for detailed description of the training/evaluation datasets.
+Please see [DATASET_ZOO.md](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md) for detailed description of the training/evaluation datasets.
 ## Pretrained model and baseline models
 Darknet-53 ImageNet pretrained: [[DarkNet Official]](https://pjreddie.com/media/files/darknet53.conv.74)
 
