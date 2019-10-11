@@ -1,5 +1,7 @@
 # Towards-Realtime-MOT
-**NOTE:** Still in progress, will update constantly, thank you for your attention!
+**NEWS:** 
+- **[2019.10.11]** Training and evaluation data uploaded! Please see [DATASET_ZOO.MD](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.MD) for details.
+- **[2019.10.01]** Demo code and pre-trained model released!
 
 ## Introduction
 This repo is the a codebase of the Joint Detection and Embedding (JDE) model. JDE is a fast and high-performance multiple-object tracker that learns the object detection task and appearance embedding task simutaneously in a shared neural network. Techical details are described in our [arXiv preprint paper](https://arxiv.org/pdf/1909.12605v1.pdf). By using this repo, you can simply achieve **MOTA 64%+** on the "private" protocol of [MOT-16 challenge](https://motchallenge.net/tracker/JDE), and with a near real-time speed at **18~24 FPS** (Note this speed is for the entire system, including the detection step! ) .
@@ -25,16 +27,18 @@ python demo.py --input-video path/to/your/input/video --weights path/to/model/we
                --output-format video --output-root path/to/output/root
 ```
 ## Dataset zoo
-Will be released later.
+Please see [DATASET_ZOO.MD](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.MD) for detailed description of the training/evaluation datasets.
 ## Pretrained model and baseline models
 Darknet-53 ImageNet pretrained: [[DarkNet Official]](https://pjreddie.com/media/files/darknet53.conv.74)
 
 JDE-1088x608-uncertainty: [[Google Drive]](https://drive.google.com/open?id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA) [[Baidu NetDisk]](https://pan.baidu.com/s/1Ifgn0Y_JZE65_qSrQM2l-Q)
 ## Test on MOT-16 Challenge
 
-## Training
+## Training instruction
 
-## Train with custom datasets
+### Train with custom datasets
+
+
 
 ## Acknowledgement
 A large portion of code is borrowed from [ultralytics/yolov3](https://github.com/ultralytics/yolov3) and [longcw/MOTDT](https://github.com/longcw/MOTDT), many thanks to their wonderful work!
