@@ -162,9 +162,7 @@ if __name__ == '__main__':
                      MOT16-08
                      MOT16-12
                      MOT16-14'''
-        seqs_str = '''MOT16-01
-        MOT16-07'''
-        data_root = '/home/wangzd/datasets/MOT/MOT16/test'
+        data_root = '/home/wangzd/datasets/MOT/MOT16/images/test'
     seqs = [seq.strip() for seq in seqs_str.split()]
 
     main(opt,

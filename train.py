@@ -12,7 +12,7 @@ from torchvision.transforms import transforms as T
 def train(
         cfg,
         data_cfg,
-        img_size=416,
+        img_size=(1088,608),
         resume=False,
         epochs=100,
         batch_size=16,
@@ -30,13 +30,15 @@ def train(
 
     # Configure run
     f = open(data_cfg)
-    trainset_paths = json.load(f)['train']
+    data_config = json.load(f)
+    trainset_paths = data_config['train']
+    dataset_root = data_config['root']
     f.close()
 
 
     transforms = T.Compose([T.ToTensor()])
     # Get dataloader
-    dataset = JointDataset(trainset_paths, img_size, augment=True, transforms=transforms)
+    dataset = JointDataset(dataset_root, trainset_paths, img_size, augment=True, transforms=transforms)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True,
                                              num_workers=8, pin_memory=True, drop_last=True, collate_fn=collate_fn) 
     
@@ -122,7 +124,7 @@ def train(
 
             # Compute loss, compute gradient, update parameters
             loss, components = model(imgs.cuda(), targets.cuda(), targets_len.cuda())
-            components = torch.mean(components.view(4,-1),dim=0)
+            components = torch.mean(components.view(-1, 5),dim=0)
 
             loss = torch.mean(loss)
             loss.backward()

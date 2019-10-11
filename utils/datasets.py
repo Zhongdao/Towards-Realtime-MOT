@@ -1,6 +1,7 @@
 import glob
 import math
 import os
+import os.path as osp
 import random
 import time
 from collections import OrderedDict
@@ -337,7 +338,7 @@ def collate_fn(batch):
 
 
 class JointDataset(LoadImagesAndLabels):  # for training
-    def __init__(self, paths, img_size=(1088,608), augment=False, transforms=None):
+    def __init__(self, root, paths, img_size=(1088,608), augment=False, transforms=None):
         
         dataset_names = paths.keys()
         self.img_files = OrderedDict()
@@ -347,7 +348,7 @@ class JointDataset(LoadImagesAndLabels):  # for training
         for ds, path in paths.items():
             with open(path, 'r') as file:
                 self.img_files[ds] = file.readlines()
-                self.img_files[ds] = [x.strip() for x in self.img_files[ds]]
+                self.img_files[ds] = [osp.join(root, x.strip()) for x in self.img_files[ds]]
                 self.img_files[ds] = list(filter(lambda x: len(x) > 0, self.img_files[ds]))
 
             self.label_files[ds] = [x.replace('images', 'labels_with_ids').replace('.png', '.txt').replace('.jpg', '.txt')

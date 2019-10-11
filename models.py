@@ -47,7 +47,6 @@ def create_modules(module_defs):
             modules.add_module('maxpool_%d' % i, maxpool)
 
         elif module_def['type'] == 'upsample':
-            # upsample = nn.Upsample(scale_factor=int(module_def['stride']), mode='nearest')  # WARNING: deprecated
             upsample = Upsample(scale_factor=int(module_def['stride']))
             modules.add_module('upsample_%d' % i, upsample)
 
@@ -118,9 +117,9 @@ class YOLOLayer(nn.Module):
         self.SoftmaxLoss = nn.CrossEntropyLoss(ignore_index=-1)
         self.CrossEntropyLoss = nn.CrossEntropyLoss()
         self.IDLoss = nn.CrossEntropyLoss(ignore_index=-1)
-        self.s_c = nn.Parameter(1*torch.ones(1))  # -4.15
-        self.s_r = nn.Parameter(1*torch.ones(1))  # -4.85
-        self.s_id = nn.Parameter(1*torch.ones(1))  # -2.3
+        self.s_c = nn.Parameter(-4.15*torch.ones(1))  # -4.15
+        self.s_r = nn.Parameter(-4.85*torch.ones(1))  # -4.85
+        self.s_id = nn.Parameter(-2.3*torch.ones(1))  # -2.3
         self.emb_scale = math.sqrt(2) * math.log(self.nID-1)
         
 
@@ -135,7 +134,6 @@ class YOLOLayer(nn.Module):
                 self.grid_xy = self.grid_xy.cuda()
                 self.anchor_wh = self.anchor_wh.cuda()
 
-        # p.view(bs, 255, 13, 13) -- > (bs, 3, 13, 13, 80)  # (bs, anchors, grid, grid, classes + xywh)
         p = p.view(nB, self.nA, self.nC + 5, nGh, nGw).permute(0, 1, 3, 4, 2).contiguous()  # prediction
         
         p_emb = p_emb.permute(0,2,3,1).contiguous()
@@ -182,10 +180,9 @@ class YOLOLayer(nn.Module):
                 lid =  self.IDLoss(logits, tids.squeeze())
 
             # Sum loss components
-            #loss = torch.exp(-self.s_r)*lbox + torch.exp(-self.s_c)*lconf + torch.exp(-self.s_id)*lid + \
-            #       (self.s_r + self.s_c + self.s_id)
-            #loss *= 0.5
-            loss = 0*lbox + 0*lconf + 1*lid
+            loss = torch.exp(-self.s_r)*lbox + torch.exp(-self.s_c)*lconf + torch.exp(-self.s_id)*lid + \
+                   (self.s_r + self.s_c + self.s_id)
+            loss *= 0.5
 
             return loss, loss.item(), lbox.item(), lconf.item(), lid.item(), nT
 
@@ -197,7 +194,6 @@ class YOLOLayer(nn.Module):
             p[..., :4] = decode_delta_map(p[..., :4], self.anchor_vec.to(p))
             p[..., :4] *= self.stride
 
-            # reshape from [nB, nA, nGh, nGw, 5 + nD] to [nB, -1, 5+nD]
             return p.view(nB, -1, p.shape[-1])
 
 

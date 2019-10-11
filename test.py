@@ -31,6 +31,7 @@ def test(
     #nC = int(data_cfg_dict['classes'])  # number of classes (80 for COCO)
     nC = 1
     test_path = data_cfg_dict['test']
+    dataset_root = data_cfg_dict['root']
 
     # Initialize model
     model = Darknet(cfg, img_size, nID)
@@ -46,7 +47,7 @@ def test(
 
     # Get dataloader
     transforms = T.Compose([T.ToTensor()])
-    dataset = JointDataset(test_path, img_size, augment=False, transforms=transforms)
+    dataset = JointDataset(dataset_root, test_path, img_size, augment=False, transforms=transforms)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, 
                                              num_workers=8, drop_last=False, collate_fn=collate_fn) 
 
@@ -161,6 +162,7 @@ def test_emb(
     data_cfg_dict = json.load(f)
     f.close()
     test_paths = data_cfg_dict['test_emb']
+    dataset_root = data_cfg_dict['root']
 
     # Initialize model
     model = Darknet(cfg, img_size, nID, test_emb=True)
@@ -176,7 +178,7 @@ def test_emb(
 
     # Get dataloader
     transforms = T.Compose([T.ToTensor()])
-    dataset = JointDataset(test_paths, img_size, augment=False, transforms=transforms)
+    dataset = JointDataset(dataset_root, test_paths, img_size, augment=False, transforms=transforms)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, 
                                              num_workers=8, drop_last=False, collate_fn=collate_fn) 
     embedding, id_labels = [], []
