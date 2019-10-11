@@ -11,7 +11,7 @@
     },
     "test_emb":
     {
-        "caltech":"./data/caltech.val",
+        "caltech":"./data/caltech.10k.val",
         "cuhksysu":"./data/cuhksysu.val",
         "prw":"./data/prw.val"
     },
