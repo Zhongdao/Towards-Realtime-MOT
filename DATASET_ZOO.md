@@ -62,10 +62,10 @@ Original dataset webpage: [Citypersons pedestrian detection dataset](https://bit
 
 ### CUHK-SYSU
 Baidu NetDisk: 
-[[0]](https://pan.baidu.com/s/1umlk_IVHxMzR_JXXFpnsWQ)
+[[0]](https://pan.baidu.com/s/1YFrlyB1WjcQmFW3Vt_sEaQ)
 
 Google Drive:
-[[0]](https://drive.google.com/file/d/1OnYq0guGqbtjh48AreZX5Vb6Yr_PbsOF/view?usp=sharing)
+[[0]](https://drive.google.com/file/d/1D7VL43kIV9uJrdSCYl53j89RE2K-IoQA/view?usp=sharing)
 
 Original dataset webpage: [CUHK-SYSU Person Search Dataset](http://www.ee.cuhk.edu.hk/~xgwang/PS/dataset.html)
 
