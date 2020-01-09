@@ -118,6 +118,7 @@ class YOLOLayer(nn.Module):
         self.nID = nID # number of identities
         self.img_size = 0
         self.emb_dim = 512
+        self.shift = [1, 3, 5]
 
         self.SmoothL1Loss  = nn.SmoothL1Loss()
         self.SoftmaxLoss = nn.CrossEntropyLoss(ignore_index=-1)
@@ -195,8 +196,11 @@ class YOLOLayer(nn.Module):
         else:
             p_conf = torch.softmax(p_conf, dim=1)[:,1,...].unsqueeze(-1)
             p_emb = p_emb.unsqueeze(1).repeat(1,self.nA,1,1,1).contiguous()
+            p_emb_up = shift_tensor_vertically(p_emb, -self.shift[self.yolo_layer])
+            p_emb_down = shift_tensor_vertically(p_emb, self.shift[self.yolo_layer])
             p_cls = torch.zeros(nB,self.nA,nGh,nGw,1).cuda()               # Temp
             p = torch.cat([p_box, p_conf, p_cls, p_emb], dim=-1)
+            #p = torch.cat([p_box, p_conf, p_cls, p_emb, p_emb_up, p_emb_down], dim=-1)
             p[..., :4] = decode_delta_map(p[..., :4], self.anchor_vec.to(p))
             p[..., :4] *= self.stride
 
@@ -267,6 +271,14 @@ class Darknet(nn.Module):
             return torch.cat(output, 0)
         return torch.cat(output, 1)
 
+def shift_tensor_vertically(t, delta):
+    # t should be a 5-D tensor (nB, nA, nH, nW, nC)
+    res = torch.zeros_like(t)
+    if delta >= 0:
+        res[:,:, :-delta, :, :] = t[:,:, delta:, :, :]
+    else:
+        res[:,:, -delta:, :, :] = t[:,:, :delta, :, :]
+    return res 
 
 def create_grids(self, img_size, nGh, nGw):
     self.stride = img_size[0]/nGw

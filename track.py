@@ -134,7 +134,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='track.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
+    parser.add_argument('--img-size', type=int, default=[1088, 608], nargs='+', help='pixels')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')

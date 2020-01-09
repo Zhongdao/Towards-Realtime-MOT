@@ -168,7 +168,7 @@ if __name__ == '__main__':
     parser.add_argument('--accumulated-batches', type=int, default=1, help='number of batches before optimizer step')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--data-cfg', type=str, default='cfg/ccmcpe.json', help='coco.data file path')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='pixels')
+    parser.add_argument('--img-size', type=int, default=[1088, 608], nargs='+', help='pixels')
     parser.add_argument('--resume', action='store_true', help='resume training flag')
     parser.add_argument('--print-interval', type=int, default=40, help='print interval')
     parser.add_argument('--test-interval', type=int, default=9, help='test interval')
