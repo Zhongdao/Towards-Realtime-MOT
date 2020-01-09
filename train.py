@@ -94,8 +94,6 @@ def train(
         logger.info(('%8s%12s' + '%10s' * 6) % (
             'Epoch', 'Batch', 'box', 'conf', 'id', 'total', 'nTargets', 'time'))
 
-        # Update scheduler (automatic)
-        scheduler.step()
 
         
         # Freeze darknet53.conv.74 for first epoch
@@ -117,7 +115,7 @@ def train(
                 lr = opt.lr * (i / burnin) **4 
                 for g in optimizer.param_groups:
                     g['lr'] = lr
-
+            
             # Compute loss, compute gradient, update parameters
             loss, components = model(imgs.cuda(), targets.cuda(), targets_len.cuda())
             components = torch.mean(components.view(-1, 5),dim=0)
@@ -145,8 +143,7 @@ def train(
             t0 = time.time()
             if i % opt.print_interval == 0:
                 logger.info(s)
-
-
+        
         # Save latest checkpoint
         checkpoint = {'epoch': epoch,
                       'model': model.module.state_dict(),
@@ -161,6 +158,8 @@ def train(
                 test.test_emb(cfg, data_cfg, weights=latest, batch_size=batch_size, img_size=img_size, print_interval=40, nID=dataset.nID)
 
 
+        # Call scheduler.step() after opimizer.step() with pytorch > 1.1.0 
+        scheduler.step()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

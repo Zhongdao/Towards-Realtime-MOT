@@ -10,7 +10,7 @@ import time
 import math
 
 batch_norm=SyncBN #nn.BatchNorm2d
-
+#batch_norm=nn.BatchNorm2d
 def create_modules(module_defs):
     """
     Constructs module list of layer blocks from module configuration in module_defs
@@ -34,7 +34,13 @@ def create_modules(module_defs):
                                                         padding=pad,
                                                         bias=not bn))
             if bn:
-                modules.add_module('batch_norm_%d' % i, batch_norm(filters))
+                after_bn = batch_norm(filters)
+                modules.add_module('batch_norm_%d' % i, after_bn)
+                # BN is uniformly initialized by default in pytorch 1.0.1. 
+                # In pytorch>1.2.0, BN weights are initialized with constant 1,
+                # but we find with the uniform initialization the model converges faster.
+                nn.init.uniform_(after_bn.weight) 
+                nn.init.zeros_(after_bn.bias)
             if module_def['activation'] == 'leaky':
                 modules.add_module('leaky_%d' % i, nn.LeakyReLU(0.1))
 

@@ -194,6 +194,7 @@ class LoadImagesAndLabels:  # for training
         if self.augment:
             img, labels, M = random_affine(img, labels, degrees=(-5, 5), translate=(0.10, 0.10), scale=(0.50, 1.20))
 
+    
         plotFlag = False
         if plotFlag:
             import matplotlib
@@ -392,12 +393,10 @@ class JointDataset(LoadImagesAndLabels):  # for training
         
 
     def __getitem__(self, files_index):
-
         for i, c in enumerate(self.cds):
             if files_index >= c: 
                 ds = list(self.label_files.keys())[i]
                 start_index = c
-
         img_path = self.img_files[ds][files_index - start_index]
         label_path = self.label_files[ds][files_index - start_index]
         

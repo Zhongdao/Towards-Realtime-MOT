@@ -9,11 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn.functional as F
-
-import maskrcnn_benchmark.layers.nms as nms
-# Set printoptions
-torch.set_printoptions(linewidth=1320, precision=5, profile='long')
-np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format})  # format short g, %precision=5
+from torchvision.ops import nms
+#import maskrcnn_benchmark.layers.nms as nms
 
 def mkdir_if_missing(d):
     if not osp.exists(d):
@@ -424,12 +421,17 @@ def soft_nms(dets, sigma=0.5, Nt=0.3, threshold=0.05, method=1):
             np.uint8(method))
     return keep
 
-def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4, method=-1):
+def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4, method='standard'):
     """
     Removes detections with lower object confidence score than 'conf_thres'
     Non-Maximum Suppression to further filter detections.
     Returns detections with shape:
         (x1, y1, x2, y2, object_conf, class_score, class_pred)
+    Args:
+        prediction,
+        conf_thres,
+        nms_thres,
+        method = 'standard', 'fast', 'soft_linear' or 'soft_gaussian'
     """
 
     output = [None for _ in range(len(prediction))]
@@ -453,11 +455,18 @@ def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4, method=-1):
 
         
         # Non-maximum suppression
-        if method == -1:
+        if method == 'standard':
             nms_indices = nms(pred[:, :4], pred[:, 4], nms_thres)
-        else:
+        elif method == 'soft_linear':
             dets = pred[:, :5].clone().contiguous().data.cpu().numpy()
-            nms_indices = soft_nms(dets, Nt=nms_thres, method=method)
+            nms_indices = soft_nms(dets, Nt=nms_thres, method=0)
+        elif method == 'soft_gaussian':
+            dets = pred[:, :5].clone().contiguous().data.cpu().numpy()
+            nms_indices = soft_nms(dets, Nt=nms_thres, method=1)
+        elif method == 'fast':
+            nms_indices = fast_nms(pred[:, :4], pred[:, 4], iou_thres=nms_thres, conf_thres=conf_thres)
+        else:
+            raise ValueError('Invalid NMS type!')
         det_max = pred[nms_indices]        
 
         if len(det_max) > 0:
@@ -465,6 +474,87 @@ def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4, method=-1):
             output[image_i] = det_max if output[image_i] is None else torch.cat((output[image_i], det_max))
 
     return output
+
+def fast_nms(boxes, scores, iou_thres:float=0.5, top_k:int=200, second_threshold:bool=False, conf_thres:float=0.5):
+    '''
+    Vectorized, approximated, fast NMS, adopted from YOLACT:
+    https://github.com/dbolya/yolact/blob/master/layers/functions/detection.py
+    The original version is for multi-class NMS, here we simplify the code for single-class NMS
+    '''
+    scores, idx = scores.sort(0, descending=True)
+    
+    idx = idx[:top_k].contiguous()
+    scores = scores[:top_k]
+    num_dets = idx.size()
+
+    boxes = boxes[idx, :]
+
+    iou = jaccard(boxes, boxes)
+    iou.triu_(diagonal=1)
+    iou_max, _ = iou.max(dim=0)
+
+    keep = (iou_max <= iou_thres)
+
+    if second_threshold:
+        keep *= (scores > self.conf_thresh)
+
+    return idx[keep]
+
+
+
+@torch.jit.script
+def intersect(box_a, box_b):
+    """ We resize both tensors to [A,B,2] without new malloc:
+    [A,2] -> [A,1,2] -> [A,B,2]
+    [B,2] -> [1,B,2] -> [A,B,2]
+    Then we compute the area of intersect between box_a and box_b.
+    Args:
+      box_a: (tensor) bounding boxes, Shape: [n,A,4].
+      box_b: (tensor) bounding boxes, Shape: [n,B,4].
+    Return:
+      (tensor) intersection area, Shape: [n,A,B].
+    """
+    n = box_a.size(0)
+    A = box_a.size(1)
+    B = box_b.size(1)
+    max_xy = torch.min(box_a[:, :, 2:].unsqueeze(2).expand(n, A, B, 2),
+                       box_b[:, :, 2:].unsqueeze(1).expand(n, A, B, 2))
+    min_xy = torch.max(box_a[:, :, :2].unsqueeze(2).expand(n, A, B, 2),
+                       box_b[:, :, :2].unsqueeze(1).expand(n, A, B, 2))
+    inter = torch.clamp((max_xy - min_xy), min=0)
+    return inter[:, :, :, 0] * inter[:, :, :, 1]
+
+
+
+def jaccard(box_a, box_b, iscrowd:bool=False):
+    """Compute the jaccard overlap of two sets of boxes.  The jaccard overlap
+    is simply the intersection over union of two boxes.  Here we operate on
+    ground truth boxes and default boxes. If iscrowd=True, put the crowd in box_b.
+    E.g.:
+        A ∩ B / A ∪ B = A ∩ B / (area(A) + area(B) - A ∩ B)
+    Args:
+        box_a: (tensor) Ground truth bounding boxes, Shape: [num_objects,4]
+        box_b: (tensor) Prior boxes from priorbox layers, Shape: [num_priors,4]
+    Return:
+        jaccard overlap: (tensor) Shape: [box_a.size(0), box_b.size(0)]
+    """
+    use_batch = True
+    if box_a.dim() == 2:
+        use_batch = False
+        box_a = box_a[None, ...]
+        box_b = box_b[None, ...]
+
+    inter = intersect(box_a, box_b)
+    area_a = ((box_a[:, :, 2]-box_a[:, :, 0]) *
+              (box_a[:, :, 3]-box_a[:, :, 1])).unsqueeze(2).expand_as(inter)  # [A,B]
+    area_b = ((box_b[:, :, 2]-box_b[:, :, 0]) *
+              (box_b[:, :, 3]-box_b[:, :, 1])).unsqueeze(1).expand_as(inter)  # [A,B]
+    union = area_a + area_b - inter
+
+    out = inter / area_a if iscrowd else inter / union
+    return out if use_batch else out.squeeze(0)
+
+
 
 
 def return_torch_unique_index(u, uv):
