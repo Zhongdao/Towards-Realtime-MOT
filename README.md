@@ -39,7 +39,7 @@ JDE-1088x608-uncertainty: [[Google Drive]](https://drive.google.com/open?id=1nln
 - Edit `cfg/ccmcpe.json`, config the training/validation combinations. A dataset is represented by an image list, please see `data/*.train` for example. 
 - Run the training script:
 ```
-CUDA_VISIBLE_DEIVCES=0,1,2,3,4,5,6,7 python train.py 
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py 
 ```
 
 We use 8x Nvidia Titan Xp to train the model, with a batch size of 32. You can adjust the batch size (and the learning rate together) according to how many GPUs your have. You can also train with smaller image size, which will bring faster inference time. But note the image size had better to be multiples of 32 (the down-sampling rate).
