@@ -195,9 +195,9 @@ class YOLOLayer(nn.Module):
 
         else:
             p_conf = torch.softmax(p_conf, dim=1)[:,1,...].unsqueeze(-1)
-            p_emb = p_emb.unsqueeze(1).repeat(1,self.nA,1,1,1).contiguous()
-            p_emb_up = shift_tensor_vertically(p_emb, -self.shift[self.yolo_layer])
-            p_emb_down = shift_tensor_vertically(p_emb, self.shift[self.yolo_layer])
+            p_emb = F.normalize(p_emb.unsqueeze(1).repeat(1,self.nA,1,1,1).contiguous(), dim=-1)
+            #p_emb_up = F.normalize(shift_tensor_vertically(p_emb, -self.shift[self.layer]), dim=-1)
+            #p_emb_down = F.normalize(shift_tensor_vertically(p_emb, self.shift[self.layer]), dim=-1)
             p_cls = torch.zeros(nB,self.nA,nGh,nGw,1).cuda()               # Temp
             p = torch.cat([p_box, p_conf, p_cls, p_emb], dim=-1)
             #p = torch.cat([p_box, p_conf, p_cls, p_emb, p_emb_up, p_emb_down], dim=-1)

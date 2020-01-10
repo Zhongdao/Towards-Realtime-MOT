@@ -34,7 +34,8 @@ class STrack(BaseTrack):
         self.alpha = 0.9
     
     def update_features(self, feat):
-        self.curr_feat = feat
+        feat /= np.linalg.norm(feat)
+        self.curr_feat = feat 
         if self.smooth_feat is None:
             self.smooth_feat = feat
         else:
@@ -186,7 +187,7 @@ class JDETracker(object):
             scale_coords(self.opt.img_size, dets[:, :4], img0.shape).round()
             '''Detections'''
             detections = [STrack(STrack.tlbr_to_tlwh(tlbrs[:4]), tlbrs[4], f.numpy(), 30) for
-                          (tlbrs, f) in zip(dets[:, :5], dets[:, -self.model.emb_dim:])]
+                          (tlbrs, f) in zip(dets[:, :5], dets[:, 6:])]
         else:
             detections = []
 
@@ -209,7 +210,8 @@ class JDETracker(object):
             strack.predict()
 
         dists = matching.embedding_distance(strack_pool, detections)
-        dists = matching.gate_cost_matrix(self.kalman_filter, dists, strack_pool, detections)
+        #dists = matching.gate_cost_matrix(self.kalman_filter, dists, strack_pool, detections)
+        dists = matching.fuse_motion(self.kalman_filter, dists, strack_pool, detections)
         matches, u_track, u_detection = matching.linear_assignment(dists, thresh=0.7)
 
         for itracked, idet in matches:
