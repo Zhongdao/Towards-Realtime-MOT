@@ -134,7 +134,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='track.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
+    parser.add_argument('--img-size', type=int, default=[1088, 608], nargs='+', help='pixels')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
@@ -147,13 +147,22 @@ if __name__ == '__main__':
     print(opt, end='\n\n')
  
     if not opt.test_mot16:
-        seqs_str = '''KITTI-13
-                      KITTI-17
-                      ADL-Rundle-6
-                      PETS09-S2L1
-                      TUD-Campus
-                      TUD-Stadtmitte'''
-        data_root = '/home/wangzd/datasets/MOT/MOT15/train'
+        #seqs_str = '''KITTI-13
+        #              KITTI-17
+        #              ADL-Rundle-6
+        #              PETS09-S2L1
+        #              TUD-Campus
+        #              TUD-Stadtmitte'''
+        #data_root = '/home/wangzd/datasets/MOT/MOT15/train'
+        seqs_str = '''MOT17-02-SDP
+                      MOT17-04-SDP
+                      MOT17-05-SDP
+                      MOT17-09-SDP
+                      MOT17-10-SDP
+                      MOT17-11-SDP
+                      MOT17-13-SDP
+                    '''
+        data_root = '/home/wangzd/datasets/MOT/MOT17/images/train'
     else:
         seqs_str = '''MOT16-01
                      MOT16-03

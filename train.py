@@ -94,8 +94,6 @@ def train(
         logger.info(('%8s%12s' + '%10s' * 6) % (
             'Epoch', 'Batch', 'box', 'conf', 'id', 'total', 'nTargets', 'time'))
 
-        # Update scheduler (automatic)
-        scheduler.step()
 
         
         # Freeze darknet53.conv.74 for first epoch
@@ -117,7 +115,7 @@ def train(
                 lr = opt.lr * (i / burnin) **4 
                 for g in optimizer.param_groups:
                     g['lr'] = lr
-
+            
             # Compute loss, compute gradient, update parameters
             loss, components = model(imgs.cuda(), targets.cuda(), targets_len.cuda())
             components = torch.mean(components.view(-1, 5),dim=0)
@@ -145,8 +143,7 @@ def train(
             t0 = time.time()
             if i % opt.print_interval == 0:
                 logger.info(s)
-
-
+        
         # Save latest checkpoint
         checkpoint = {'epoch': epoch,
                       'model': model.module.state_dict(),
@@ -161,6 +158,8 @@ def train(
                 test.test_emb(cfg, data_cfg, weights=latest, batch_size=batch_size, img_size=img_size, print_interval=40, nID=dataset.nID)
 
 
+        # Call scheduler.step() after opimizer.step() with pytorch > 1.1.0 
+        scheduler.step()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -169,7 +168,7 @@ if __name__ == '__main__':
     parser.add_argument('--accumulated-batches', type=int, default=1, help='number of batches before optimizer step')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--data-cfg', type=str, default='cfg/ccmcpe.json', help='coco.data file path')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='pixels')
+    parser.add_argument('--img-size', type=int, default=[1088, 608], nargs='+', help='pixels')
     parser.add_argument('--resume', action='store_true', help='resume training flag')
     parser.add_argument('--print-interval', type=int, default=40, help='print interval')
     parser.add_argument('--test-interval', type=int, default=9, help='test interval')

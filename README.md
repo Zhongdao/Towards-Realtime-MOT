@@ -10,12 +10,14 @@ We hope this repo will help researches/engineers to develop more practical MOT s
 
 ## Requirements
 * Python 3.6
-* [Pytorch](https://pytorch.org) >= 1.0.1
-* [syncbn](https://github.com/ytoon/Synchronized-BatchNorm-PyTorch) (Optional, compile and place it under utils/syncbn, or simply replace with nn.BatchNorm [here](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/models.py#L12))
-* [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) (Their GPU NMS is used in this project)
+* [Pytorch](https://pytorch.org) >= 1.2.0 
 * python-opencv
-* ffmpeg (Optional, used in the video demo)
-* [py-motmetrics](https://github.com/cheind/py-motmetrics) (Simply `pip install motmetrics`)
+* [py-motmetrics](https://github.com/cheind/py-motmetrics) (`pip install motmetrics`)
+* cython-bbox (`pip install cython_bbox`)
+* (Optional) ffmpeg (used in the video demo)
+* (Optional) [syncbn](https://github.com/ytoon/Synchronized-BatchNorm-PyTorch) (compile and place it under utils/syncbn, or simply replace with nn.BatchNorm [here](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/models.py#L12))
+* ~~[maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark) (Their GPU NMS is used in this project)~~
+
 
 ## Video Demo
 <img src="assets/MOT16-03.gif" width="400"/>   <img src="assets/MOT16-14.gif" width="400"/>
@@ -39,7 +41,7 @@ JDE-1088x608-uncertainty: [[Google Drive]](https://drive.google.com/open?id=1nln
 - Edit `cfg/ccmcpe.json`, config the training/validation combinations. A dataset is represented by an image list, please see `data/*.train` for example. 
 - Run the training script:
 ```
-CUDA_VISIBLE_DEIVCES=0,1,2,3,4,5,6,7 python train.py 
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python train.py 
 ```
 
 We use 8x Nvidia Titan Xp to train the model, with a batch size of 32. You can adjust the batch size (and the learning rate together) according to how many GPUs your have. You can also train with smaller image size, which will bring faster inference time. But note the image size had better to be multiples of 32 (the down-sampling rate).
