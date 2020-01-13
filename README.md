@@ -28,6 +28,18 @@ Usage:
 python demo.py --input-video path/to/your/input/video --weights path/to/model/weights
                --output-format video --output-root path/to/output/root
 ```
+
+## docker demo example
+```bash
+docker build -t towards-realtime-mot docker/
+
+docker run --rm --gpus all -v $(pwd)/:/Towards-Realtime-MOT -ti towards-realtime-mot /bin/bash
+cd /Towards-Realtime-MOT;
+python demo.py --input-video path/to/your/input/video --weights path/to/model/weights
+               --output-format video --output-root path/to/output/root
+
+```
+
 ## Dataset zoo
 Please see [DATASET_ZOO.md](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md) for detailed description of the training/evaluation datasets.
 ## Pretrained model and baseline models
