@@ -5,12 +5,15 @@ import torch.nn as nn
 
 from utils.parse_config import *
 from utils.utils import *
-from utils.syncbn import SyncBN
 import time
 import math
 
-batch_norm=SyncBN #nn.BatchNorm2d
-#batch_norm=nn.BatchNorm2d
+try:
+    from utils.syncbn import SyncBN
+    batch_norm=SyncBN #nn.BatchNorm2d
+except ImportError:
+    batch_norm=nn.BatchNorm2d
+
 def create_modules(module_defs):
     """
     Constructs module list of layer blocks from module configuration in module_defs
