@@ -16,12 +16,10 @@ def test(
         data_cfg,
         weights,
         batch_size=16,
-        img_size=416,
         iou_thres=0.5,
         conf_thres=0.3,
         nms_thres=0.45,
         print_interval=40,
-        nID=14455,
 ):
 
     # Configure run
@@ -32,9 +30,11 @@ def test(
     nC = 1
     test_path = data_cfg_dict['test']
     dataset_root = data_cfg_dict['root']
+    cfg_dict = parse_model_cfg(cfg)
+    img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
 
     # Initialize model
-    model = Darknet(cfg, img_size, nID)
+    model = Darknet(cfg_dict, test_emb=False)
 
     # Load weights
     if weights.endswith('.pt'):  # pytorch format
@@ -149,12 +149,10 @@ def test_emb(
             data_cfg,
             weights,
             batch_size=16,
-            img_size=416,
             iou_thres=0.5,
             conf_thres=0.3,
             nms_thres=0.45,
             print_interval=40,
-            nID=14455,
 ):
 
     # Configure run
@@ -163,9 +161,11 @@ def test_emb(
     f.close()
     test_paths = data_cfg_dict['test_emb']
     dataset_root = data_cfg_dict['root']
+    cfg_dict = parse_model_cfg(cfg)
+    img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
 
     # Initialize model
-    model = Darknet(cfg, img_size, nID, test_emb=True)
+    model = Darknet(cfg_dict, test_emb=True)
 
     # Load weights
     if weights.endswith('.pt'):  # pytorch format
@@ -231,7 +231,6 @@ if __name__ == '__main__':
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.5, help='iou threshold for non-maximum suppression')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
     parser.add_argument('--print-interval', type=int, default=10, help='size of each image dimension')
     parser.add_argument('--test-emb', action='store_true', help='test embedding')
     opt = parser.parse_args()
@@ -244,7 +243,6 @@ if __name__ == '__main__':
                 opt.data_cfg,
                 opt.weights,
                 opt.batch_size,
-                opt.img_size,
                 opt.iou_thres,
                 opt.conf_thres,
                 opt.nms_thres,
@@ -256,7 +254,6 @@ if __name__ == '__main__':
                 opt.data_cfg,
                 opt.weights,
                 opt.batch_size,
-                opt.img_size,
                 opt.iou_thres,
                 opt.conf_thres,
                 opt.nms_thres,

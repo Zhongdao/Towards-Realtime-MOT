@@ -5,13 +5,14 @@ import logging
 import argparse
 import motmetrics as mm
 
+import torch
 from tracker.multitracker import JDETracker
 from utils import visualization as vis
 from utils.log import logger
 from utils.timer import Timer
 from utils.evaluation import Evaluator
+from utils.parse_config import parse_model_cfg
 import utils.datasets as datasets
-import torch
 from utils.utils import *
 
 
@@ -84,6 +85,10 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
     mkdir_if_missing(result_root)
     data_type = 'mot'
 
+    # Read config
+    cfg_dict = parse_model_cfg(opt.cfg)
+    opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
+
     # run tracking
     accs = []
     n_frame = 0
@@ -134,7 +139,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='track.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
-    parser.add_argument('--img-size', type=int, default=[1088, 608], nargs='+', help='pixels')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
@@ -161,6 +165,8 @@ if __name__ == '__main__':
                       MOT17-10-SDP
                       MOT17-11-SDP
                       MOT17-13-SDP
+                    '''
+        seqs_str = '''MOT17-02-SDP
                     '''
         data_root = '/home/wangzd/datasets/MOT/MOT17/images/train'
     else:
