@@ -12,6 +12,7 @@ from utils.io import read_results
 from utils.log import logger
 from utils.timer import Timer
 from utils.evaluation import Evaluator
+from utils.parse_config import parse_model_cfg
 import utils.datasets as datasets
 import torch
 from track import eval_seq
@@ -21,6 +22,9 @@ def track(opt):
     logger.setLevel(logging.INFO)
     result_root = opt.output_root if opt.output_root!='' else '.'
     mkdir_if_missing(result_root)
+
+    cfg_dict = parse_model_cfg(opt.cfg)
+    opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
 
     # run tracking
     timer = Timer()
@@ -48,7 +52,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='demo.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
