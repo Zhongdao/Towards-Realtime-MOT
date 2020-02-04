@@ -51,7 +51,7 @@ Trained models with different input resolutions:
 |Model| MOTA | IDF1 | IDS | FP | FN | FPS | Link |
 |-----|------|------|-----|----|----|-----|------|
 |JDE-1088x608| 74.8|	67.3|	1189| 5558|	21505|	22.2| [[Google]](https://drive.google.com/open?id=1nlnuYfGNuHWZztQHXwVZSL_FvfE551pA) [[Baidu]](https://pan.baidu.com/s/1Ifgn0Y_JZE65_qSrQM2l-Q) |
-|JDE-864x480| 70.8|	65.8|	1279|	5653|	25806|	20.3| [[Google]]() [[Baidu]](https://pan.baidu.com/s/1rBQ7DFjhLQbEq6JTJRntKA) |
+|JDE-864x480| 70.8|	65.8|	1279|	5653|	25806|	30.3| [[Google]](https://drive.google.com/open?id=1UKgkYrsV-59kYaHgWeJ70p5Mij3QWuFr) [[Baidu]](https://pan.baidu.com/s/1rBQ7DFjhLQbEq6JTJRntKA) |
 |JDE-576x320| 63.7|	63.3|	1307|	6657|	32794|	37.9|[[Google]]() [[Baidu]](https://pan.baidu.com/s/1cCulbPNneIXOpRRjrTgJ4g) |
 
 The performance is tested on the MOT-16 training set, just for reference. Running speed is tested on an Nvidia Titan Xp GPU. For a more comprehensive comparison with other methods you can test on MOT-16 test set and submit a result to the [MOT-16 benchmark](https://motchallenge.net/results/MOT16/?det=Private). Note that the results should be submitted to the private detector track.
