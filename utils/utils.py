@@ -208,8 +208,10 @@ def bbox_iou(box1, box2, x1y1x2y2=False):
         b2_x1, b2_y1, b2_x2, b2_y2 = box2[:, 0], box2[:, 1], box2[:, 2], box2[:, 3]
     else:
         # Transform from center and width to exact coordinates
-        [b1_x1, b1_y1, b1_x2, b1_y2] = xywh2xyxy(box1)
-        [b2_x1, b2_y1, b2_x2, b2_y2] = xywh2xyxy(box2)
+        b1_x1, b1_x2 = box1[:, 0] - box1[:, 2] / 2, box1[:, 0] + box1[:, 2] / 2
+        b1_y1, b1_y2 = box1[:, 1] - box1[:, 3] / 2, box1[:, 1] + box1[:, 3] / 2
+        b2_x1, b2_x2 = box2[:, 0] - box2[:, 2] / 2, box2[:, 0] + box2[:, 2] / 2
+        b2_y1, b2_y2 = box2[:, 1] - box2[:, 3] / 2, box2[:, 1] + box2[:, 3] / 2
 
     # get the coordinates of the intersection rectangle
     inter_rect_x1 = torch.max(b1_x1.unsqueeze(1), b2_x1)
