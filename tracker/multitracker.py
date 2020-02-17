@@ -1,14 +1,6 @@
-import numpy as np
 from numba import jit
 from collections import deque
-import itertools
-import os
-import os.path as osp
-import time
 import torch
-
-from utils.utils import *
-from utils.log import logger
 from utils.kalman_filter import KalmanFilter
 from models import *
 from tracker import matching
