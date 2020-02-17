@@ -172,9 +172,9 @@ class JDETracker(object):
 
     def update(self, im_blob, img0):
         """
-        Processes image frame and finds bounding box(detections).
+        Processes the image frame and finds bounding box(detections).
 
-       Associates the detection with corresponding tracklets and also handles lost, removed and activated tracklets
+        Associates the detection with corresponding tracklets and also handles lost, removed, refound and active tracklets
 
         Parameters
         ----------
@@ -206,7 +206,7 @@ class JDETracker(object):
         # pred now has lesser number of proposals. Proposals rejected on basis of object confidence score
         if len(pred) > 0:
             dets = non_max_suppression(pred.unsqueeze(0), self.opt.conf_thres, self.opt.nms_thres)[0].cpu()
-            # Final number of proposals is obtained in dets. Information of bounding box and embeddings also included
+            # Final proposals are obtained in dets. Information of bounding box and embeddings also included
             # Next step changes the detection scales
             scale_coords(self.opt.img_size, dets[:, :4], img0.shape).round()
             '''Detections is list of (x1, y1, x2, y2, object_conf, class_score, class_pred)'''
@@ -313,6 +313,7 @@ class JDETracker(object):
             activated_starcks.append(track)
 
         """ Step 5: Update state"""
+        # If the tracks are lost for more frames than the threshold number, the tracks are removed.
         for track in self.lost_stracks:
             if self.frame_id - track.end_frame > self.max_time_lost:
                 track.mark_removed()
@@ -320,6 +321,7 @@ class JDETracker(object):
         t4 = time.time()
         # print('Remained match {} s'.format(t4-t3))
 
+        # Update the self.tracked_stracks and self.lost_stracks using the updates in this step.
         self.tracked_stracks = [t for t in self.tracked_stracks if t.state == TrackState.Tracked]
         self.tracked_stracks = joint_stracks(self.tracked_stracks, activated_starcks)
         self.tracked_stracks = joint_stracks(self.tracked_stracks, refind_stracks)
