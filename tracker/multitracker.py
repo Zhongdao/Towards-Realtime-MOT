@@ -33,14 +33,13 @@ class STrack(BaseTrack):
         else:
             self.smooth_feat = self.alpha *self.smooth_feat + (1-self.alpha) * feat
         self.features.append(feat)
-        self.smooth_feat /= np.linalg.norm(self.smooth_feat)  
+        self.smooth_feat /= np.linalg.norm(self.smooth_feat)
 
     def predict(self):
         mean_state = self.mean.copy()
         if self.state != TrackState.Tracked:
             mean_state[7] = 0
         self.mean, self.covariance = self.kalman_filter.predict(mean_state, self.covariance)
-
 
     def activate(self, kalman_filter, frame_id):
         """Start a new tracklet"""
@@ -310,7 +309,6 @@ class JDETracker(object):
             if self.frame_id - track.end_frame > self.max_time_lost:
                 track.mark_removed()
                 removed_stracks.append(track)
-        t4 = time.time()
         # print('Remained match {} s'.format(t4-t3))
 
         # Update the self.tracked_stracks and self.lost_stracks using the updates in this step.
@@ -327,12 +325,11 @@ class JDETracker(object):
         # get scores of lost tracks
         output_stracks = [track for track in self.tracked_stracks if track.is_activated]
 
-        # logger.debug('===========Frame {}=========='.format(self.frame_id))
-        # logger.debug('Activated: {}'.format([track.track_id for track in activated_starcks]))
-        # logger.debug('Refind: {}'.format([track.track_id for track in refind_stracks]))
-        # logger.debug('Lost: {}'.format([track.track_id for track in lost_stracks]))
-        # logger.debug('Removed: {}'.format([track.track_id for track in removed_stracks]))
-        t5 = time.time()
+        logger.debug('===========Frame {}=========='.format(self.frame_id))
+        logger.debug('Activated: {}'.format([track.track_id for track in activated_starcks]))
+        logger.debug('Refind: {}'.format([track.track_id for track in refind_stracks]))
+        logger.debug('Lost: {}'.format([track.track_id for track in lost_stracks]))
+        logger.debug('Removed: {}'.format([track.track_id for track in removed_stracks]))
         # print('Final {} s'.format(t5-t4))
         return output_stracks
 

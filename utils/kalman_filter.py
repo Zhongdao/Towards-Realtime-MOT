@@ -1,5 +1,4 @@
 # vim: expandtab:ts=4:sw=4
-import numba
 import numpy as np
 import scipy.linalg
 

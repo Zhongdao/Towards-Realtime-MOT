@@ -1,20 +1,10 @@
-import os
-import os.path as osp
-import cv2
 import logging
 import argparse
-import motmetrics as mm
-
-from tracker.multitracker import JDETracker
-from utils import visualization as vis
 from utils.utils import *
-from utils.io import read_results
 from utils.log import logger
 from utils.timer import Timer
-from utils.evaluation import Evaluator
 from utils.parse_config import parse_model_cfg
 import utils.datasets as datasets
-import torch
 from track import eval_seq
 
 
