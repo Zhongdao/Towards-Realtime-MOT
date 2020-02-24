@@ -40,6 +40,19 @@ class STrack(BaseTrack):
         if self.state != TrackState.Tracked:
             mean_state[7] = 0
         self.mean, self.covariance = self.kalman_filter.predict(mean_state, self.covariance)
+        
+    @staticmethod
+    def multi_predict(stracks):
+        if len(stracks) > 0:
+            multi_mean = np.asarray([st.mean.copy() for st in stracks])
+            multi_covariance = np.asarray([st.covariance for st in stracks])
+            for i, st in enumerate(stracks):
+                if st.state != TrackState.Tracked:
+                    multi_mean[i][7] = 0
+            multi_mean, multi_covariance = STrack.shared_kalman.multi_predict(multi_mean, multi_covariance)
+            for i, (mean, cov) in enumerate(zip(multi_mean, multi_covariance)):
+                stracks[i].mean = mean
+                stracks[i].covariance = cov
 
     def activate(self, kalman_filter, frame_id):
         """Start a new tracklet"""
@@ -227,8 +240,8 @@ class JDETracker(object):
         # Combining currently tracked_stracks and lost_stracks
         strack_pool = joint_stracks(tracked_stracks, self.lost_stracks)
         # Predict the current location with KF
-        for strack in strack_pool:
-            strack.predict()
+        STrack.multi_predict(strack_pool)
+
 
         dists = matching.embedding_distance(strack_pool, detections)
         # dists = matching.gate_cost_matrix(self.kalman_filter, dists, strack_pool, detections)
