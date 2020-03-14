@@ -39,6 +39,41 @@ def write_results(filename, results, data_type):
 
 
 def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_image=True, frame_rate=30):
+    '''
+       Processes the video sequence given and provides the output of tracking result (write the results in video file)
+
+       It uses JDE model for getting information about the online targets present.
+
+       Parameters
+       ----------
+       opt : Namespace
+             Contains information passed as commandline arguments.
+
+       dataloader : LoadVideo
+                    Instance of LoadVideo class used for fetching the image sequence and associated data.
+
+       data_type : String
+                   Type of dataset corresponding(similar) to the given video.
+
+       result_filename : String
+                         The name(path) of the file for storing results.
+
+       save_dir : String
+                  Path to the folder for storing the frames containing bounding box information (Result frames).
+
+       show_image : bool
+                    Option for shhowing individial frames during run-time.
+
+       frame_rate : int
+                    Frame-rate of the given video.
+
+       Returns
+       -------
+       (Returns are not significant here)
+       frame_id : int
+                  Sequence number of the last sequence
+       '''
+
     if save_dir:
         mkdir_if_missing(save_dir)
     tracker = JDETracker(opt, frame_rate=frame_rate)

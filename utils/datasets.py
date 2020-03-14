@@ -393,6 +393,9 @@ class JointDataset(LoadImagesAndLabels):  # for training
         
 
     def __getitem__(self, files_index):
+        """
+        Iterator function for train dataset
+        """
         for i, c in enumerate(self.cds):
             if files_index >= c: 
                 ds = list(self.label_files.keys())[i]

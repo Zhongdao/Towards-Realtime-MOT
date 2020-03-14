@@ -1,4 +1,4 @@
-"""Demo file for running the JDE tracker on custom video sequences for pedestrian tracking. 
+"""Demo file for running the JDE tracker on custom video sequences for pedestrian tracking.
 
 This file is the entry point to running the tracker on custom video sequences. It loads images from the provided video sequence, uses the JDE tracker for inference and outputs the video with bounding boxes indicating pedestrians. The bounding boxes also have associated ids (shown in different colours) to keep track of the movement of each individual. 
 
@@ -24,29 +24,19 @@ Todo:
     * More documentation
 """
 
-import os
-import os.path as osp
-import cv2
 import logging
 import argparse
-import motmetrics as mm
-
-from tracker.multitracker import JDETracker
-from utils import visualization as vis
 from utils.utils import *
-from utils.io import read_results
 from utils.log import logger
 from utils.timer import Timer
-from utils.evaluation import Evaluator
 from utils.parse_config import parse_model_cfg
 import utils.datasets as datasets
-import torch
 from track import eval_seq
 
 
 logger.setLevel(logging.INFO)
 
-def track(opt):    
+def track(opt):
     result_root = opt.output_root if opt.output_root!='' else '.'
     mkdir_if_missing(result_root)
 
