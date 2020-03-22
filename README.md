@@ -79,3 +79,15 @@ Adding custom datsets is quite simple, all you need to do is to organize your an
 
 ## Acknowledgement
 A large portion of code is borrowed from [ultralytics/yolov3](https://github.com/ultralytics/yolov3) and [longcw/MOTDT](https://github.com/longcw/MOTDT), many thanks to their wonderful work!
+
+## Citation
+If you find this repo useful in your project or research, please consider citing it:
+```
+@article{wang2019towards,
+  title={Towards Real-Time Multi-Object Tracking},
+  author={Wang, Zhongdao and Zheng, Liang and Liu, Yixuan and Wang, Shengjin},
+  journal={arXiv preprint arXiv:1909.12605},
+  year={2019}
+}
+```
+
