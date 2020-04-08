@@ -76,6 +76,8 @@ We use 8x Nvidia Titan Xp to train the model, with a batch size of 32. You can a
 ### Train with custom datasets
 Adding custom datsets is quite simple, all you need to do is to organize your annotation files in the same format as in our training sets. Please refer to [DATASET_ZOO.md](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md) for the dataset format. 
 
+## Related Resources
+See also the current SOTA on MOT16 private track, [FairMOT](https://github.com/ifzhang/FairMOT), which follows the framework of JDE. They employ an anchor-free, high-resolution network and thus mitigate the embedding mis-alignment/overlapping issue, and achieves higher performance. The results are surprisingly good -- 68.7 MOTA	/ 70.4 IDF-1 / 953 IDs !	
 
 ## Acknowledgement
 A large portion of code is borrowed from [ultralytics/yolov3](https://github.com/ultralytics/yolov3) and [longcw/MOTDT](https://github.com/longcw/MOTDT), many thanks to their wonderful work!
