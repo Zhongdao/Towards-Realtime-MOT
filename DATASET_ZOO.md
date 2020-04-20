@@ -44,6 +44,7 @@ Baidu NetDisk:
 Google Drive: [[annotations]](https://drive.google.com/file/d/1h8vxl_6tgi9QVYoer9XcY9YwNB32TE5k/view?usp=sharing) , 
 please download all the images `.tar` files from [this page](http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/) and unzip the images under `Caltech/images`
 
+You may need [this tool](https://github.com/mitmul/caltech-pedestrian-dataset-converter) to convert the original data format to jpeg images.
 Original dataset webpage: [CaltechPedestrians](http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/)
 ### CityPersons
 Baidu NetDisk: 
