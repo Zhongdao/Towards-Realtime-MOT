@@ -78,6 +78,9 @@ class LoadImages:  # for inference
 
 class LoadVideo:  # for inference
     def __init__(self, path, img_size=(1088, 608)):
+        if not os.path.isfile(path):
+            raise FileExistsError
+        
         self.cap = cv2.VideoCapture(path)        
         self.frame_rate = int(round(self.cap.get(cv2.CAP_PROP_FPS)))
         self.vw = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -194,6 +197,7 @@ class LoadImagesAndLabels:  # for training
         if self.augment:
             img, labels, M = random_affine(img, labels, degrees=(-5, 5), translate=(0.10, 0.10), scale=(0.50, 1.20))
 
+    
         plotFlag = False
         if plotFlag:
             import matplotlib
@@ -392,12 +396,13 @@ class JointDataset(LoadImagesAndLabels):  # for training
         
 
     def __getitem__(self, files_index):
-
+        """
+        Iterator function for train dataset
+        """
         for i, c in enumerate(self.cds):
             if files_index >= c: 
                 ds = list(self.label_files.keys())[i]
                 start_index = c
-
         img_path = self.img_files[ds][files_index - start_index]
         label_path = self.label_files[ds][files_index - start_index]
         

@@ -5,13 +5,14 @@ import logging
 import argparse
 import motmetrics as mm
 
+import torch
 from tracker.multitracker import JDETracker
 from utils import visualization as vis
 from utils.log import logger
 from utils.timer import Timer
 from utils.evaluation import Evaluator
+from utils.parse_config import parse_model_cfg
 import utils.datasets as datasets
-import torch
 from utils.utils import *
 
 
@@ -38,6 +39,41 @@ def write_results(filename, results, data_type):
 
 
 def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_image=True, frame_rate=30):
+    '''
+       Processes the video sequence given and provides the output of tracking result (write the results in video file)
+
+       It uses JDE model for getting information about the online targets present.
+
+       Parameters
+       ----------
+       opt : Namespace
+             Contains information passed as commandline arguments.
+
+       dataloader : LoadVideo
+                    Instance of LoadVideo class used for fetching the image sequence and associated data.
+
+       data_type : String
+                   Type of dataset corresponding(similar) to the given video.
+
+       result_filename : String
+                         The name(path) of the file for storing results.
+
+       save_dir : String
+                  Path to the folder for storing the frames containing bounding box information (Result frames).
+
+       show_image : bool
+                    Option for shhowing individial frames during run-time.
+
+       frame_rate : int
+                    Frame-rate of the given video.
+
+       Returns
+       -------
+       (Returns are not significant here)
+       frame_id : int
+                  Sequence number of the last sequence
+       '''
+
     if save_dir:
         mkdir_if_missing(save_dir)
     tracker = JDETracker(opt, frame_rate=frame_rate)
@@ -83,6 +119,10 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
     result_root = os.path.join(data_root, '..', 'results', exp_name)
     mkdir_if_missing(result_root)
     data_type = 'mot'
+
+    # Read config
+    cfg_dict = parse_model_cfg(opt.cfg)
+    opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
 
     # run tracking
     accs = []
@@ -134,7 +174,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='track.py')
     parser.add_argument('--cfg', type=str, default='cfg/yolov3.cfg', help='cfg file path')
     parser.add_argument('--weights', type=str, default='weights/latest.pt', help='path to weights file')
-    parser.add_argument('--img-size', type=int, default=(1088, 608), help='size of each image dimension')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='iou threshold required to qualify as detected')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
@@ -147,13 +186,15 @@ if __name__ == '__main__':
     print(opt, end='\n\n')
  
     if not opt.test_mot16:
-        seqs_str = '''KITTI-13
-                      KITTI-17
-                      ADL-Rundle-6
-                      PETS09-S2L1
-                      TUD-Campus
-                      TUD-Stadtmitte'''
-        data_root = '/home/wangzd/datasets/MOT/MOT15/train'
+        seqs_str = '''MOT17-02-SDP
+                      MOT17-04-SDP
+                      MOT17-05-SDP
+                      MOT17-09-SDP
+                      MOT17-10-SDP
+                      MOT17-11-SDP
+                      MOT17-13-SDP
+                    '''
+        data_root = '/home/wangzd/datasets/MOT/MOT17/images/train'
     else:
         seqs_str = '''MOT16-01
                      MOT16-03

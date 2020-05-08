@@ -14,7 +14,9 @@ def parse_model_cfg(path):
         else:
             key, value = line.split("=")
             value = value.strip()
-            module_defs[-1][key.rstrip()] = value.strip()
+            if value[0] == '$':
+                value = module_defs[0].get(value.strip('$'), None)
+            module_defs[-1][key.rstrip()] = value
 
     return module_defs
 

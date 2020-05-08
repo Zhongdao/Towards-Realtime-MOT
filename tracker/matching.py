@@ -1,12 +1,10 @@
-import cv2
 import numpy as np
 import scipy
 from scipy.spatial.distance import cdist
-from sklearn.utils import linear_assignment_
+import lap
 
-from utils.cython_bbox import bbox_ious
+from cython_bbox import bbox_overlaps as bbox_ious
 from utils import kalman_filter
-import time
 
 def merge_matches(m1, m2, shape):
     O,P,Q = shape
@@ -25,32 +23,19 @@ def merge_matches(m1, m2, shape):
     return match, unmatched_O, unmatched_Q
 
 
-def _indices_to_matches(cost_matrix, indices, thresh):
-    matched_cost = cost_matrix[tuple(zip(*indices))]
-    matched_mask = (matched_cost <= thresh)
-
-    matches = indices[matched_mask]
-    unmatched_a = tuple(set(range(cost_matrix.shape[0])) - set(matches[:, 0]))
-    unmatched_b = tuple(set(range(cost_matrix.shape[1])) - set(matches[:, 1]))
-
-    return matches, unmatched_a, unmatched_b
-
-
 def linear_assignment(cost_matrix, thresh):
-    """
-    Simple linear assignment
-    :type cost_matrix: np.ndarray
-    :type thresh: float
-    :return: matches, unmatched_a, unmatched_b
-    """
     if cost_matrix.size == 0:
         return np.empty((0, 2), dtype=int), tuple(range(cost_matrix.shape[0])), tuple(range(cost_matrix.shape[1]))
-
-    cost_matrix[cost_matrix > thresh] = thresh + 1e-4
-    indices = linear_assignment_.linear_assignment(cost_matrix)
-
-    return _indices_to_matches(cost_matrix, indices, thresh)
-
+    matches, unmatched_a, unmatched_b = [], [], []
+    cost, x, y = lap.lapjv(cost_matrix, extend_cost=True, cost_limit=thresh)
+    for ix, mx in enumerate(x):
+        if mx >= 0:
+            matches.append([ix, mx])
+    unmatched_a = np.where(x < 0)[0]
+    unmatched_b = np.where(y < 0)[0]
+    matches = np.asarray(matches)
+    return matches, unmatched_a, unmatched_b
+            
 
 def ious(atlbrs, btlbrs):
     """
@@ -104,12 +89,13 @@ def embedding_distance(tracks, detections, metric='cosine'):
     if cost_matrix.size == 0:
         return cost_matrix
     det_features = np.asarray([track.curr_feat for track in detections], dtype=np.float)
-    for i, track in enumerate(tracks):
-        cost_matrix[i, :] = np.maximum(0.0, cdist(track.smooth_feat.reshape(1,-1), det_features, metric))
+    track_features = np.asarray([track.smooth_feat for track in tracks], dtype=np.float)
+    cost_matrix = np.maximum(0.0, cdist(track_features, det_features)) # Nomalized features
+
     return cost_matrix
 
 
-def gate_cost_matrix(kf, cost_matrix, tracks, detections, only_position=False):
+def fuse_motion(kf, cost_matrix, tracks, detections, only_position=False, lambda_=0.98):
     if cost_matrix.size == 0:
         return cost_matrix
     gating_dim = 2 if only_position else 4
@@ -117,6 +103,7 @@ def gate_cost_matrix(kf, cost_matrix, tracks, detections, only_position=False):
     measurements = np.asarray([det.to_xyah() for det in detections])
     for row, track in enumerate(tracks):
         gating_distance = kf.gating_distance(
-            track.mean, track.covariance, measurements, only_position)
+            track.mean, track.covariance, measurements, only_position, metric='maha')
         cost_matrix[row, gating_distance > gating_threshold] = np.inf
+        cost_matrix[row] = lambda_ * cost_matrix[row] + (1-lambda_)* gating_distance
     return cost_matrix
