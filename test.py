@@ -42,8 +42,10 @@ def test(
     else:  # darknet format
         load_darknet_weights(model, weights)
 
-    model = torch.nn.DataParallel(model)
+    #model = torch.nn.DataParallel(model)
     model.cuda().eval()
+    model = torch.nn.parallel.DistributedDataParallel(model, find_unused_parameters=True)
+
 
     # Get dataloader
     transforms = T.Compose([T.ToTensor()])
@@ -173,8 +175,10 @@ def test_emb(
     else:  # darknet format
         load_darknet_weights(model, weights)
 
-    model = torch.nn.DataParallel(model)
+    #model = torch.nn.DataParallel(model)
     model.cuda().eval()
+    model = torch.nn.parallel.DistributedDataParallel(model, find_unused_parameters=True)
+
 
     # Get dataloader
     transforms = T.Compose([T.ToTensor()])
