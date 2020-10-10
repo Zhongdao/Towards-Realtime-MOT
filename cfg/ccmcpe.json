@@ -1,23 +1,15 @@
 {
-    "root":"/home/wangzd/datasets/MOT",
+    "root":"/home/aleksey/src/research/Towards-Realtime-MOT",
     "train":
     {
-        "mot17":"./data/mot17.train",
-        "caltech":"./data/caltech.train",
-        "citypersons":"./data/citypersons.train",
-        "cuhksysu":"./data/cuhksysu.train",
-        "prw":"./data/prw.train",
-        "eth":"./data/eth.train"
+        "caltech":"./data/caltech.train"
     },
     "test_emb":
     {
-        "caltech":"./data/caltech.10k.val",
-        "cuhksysu":"./data/cuhksysu.val",
-        "prw":"./data/prw.val"
+        "caltech":"./data/caltech.val"
     },
     "test":
     {
-        "caltech":"./data/caltech.val",
-        "citypersons":"./data/citypersons.val"
+        "caltech":"./data/caltech.val"
     }
 }
