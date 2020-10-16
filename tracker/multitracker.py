@@ -5,7 +5,7 @@ from utils.kalman_filter import KalmanFilter
 from utils.log import logger
 from models import *
 from tracker import matching
-from yolov5.yolo import Model
+from models.yolo import Model
 from .basetrack import BaseTrack, TrackState
 
 
@@ -159,14 +159,15 @@ class STrack(BaseTrack):
 
 
 class JDETracker(object):
-    def __init__(self, opt, frame_rate=30, model="yolov5"):
+    def __init__(self, opt, frame_rate=30):
         self.opt = opt
-        if model=="yolov5":
+        if self.opt.yolo_version=="v5":
             self.model = Model(opt.cfg)
+            self.model.load_state_dict(torch.load(opt.weights, map_location='cpu')['model'], strict=False)
         else:
             self.model = Darknet(opt.cfg, nID=14455)
         # load_darknet_weights(self.model, opt.weights)
-        self.model.load_state_dict(torch.load(opt.weights, map_location='cpu')['model'], strict=False)
+            self.model.load_state_dict(torch.load(opt.weights, map_location='cpu')['model'], strict=False)
         self.model.cuda().eval()
 
         self.tracked_stracks = []  # type: list[STrack]
@@ -210,6 +211,7 @@ class JDETracker(object):
         t1 = time.time()
         ''' Step 1: Network forward, get detections & embeddings'''
         with torch.no_grad():
+#             import pdb;pdb.set_trace()
             pred = self.model(im_blob)
         # pred is tensor of all the proposals (default number of proposals: 54264). Proposals have information associated with the bounding box and embeddings
         pred = pred[pred[:, :, 4] > self.opt.conf_thres]
