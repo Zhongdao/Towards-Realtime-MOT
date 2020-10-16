@@ -5,6 +5,7 @@ from utils.kalman_filter import KalmanFilter
 from utils.log import logger
 from models import *
 from tracker import matching
+from yolov5.yolo import Model
 from .basetrack import BaseTrack, TrackState
 
 
@@ -158,9 +159,12 @@ class STrack(BaseTrack):
 
 
 class JDETracker(object):
-    def __init__(self, opt, frame_rate=30):
+    def __init__(self, opt, frame_rate=30, model="yolov5"):
         self.opt = opt
-        self.model = Darknet(opt.cfg, nID=14455)
+        if model=="yolov5":
+            self.model = Model(opt.cfg)
+        else:
+            self.model = Darknet(opt.cfg, nID=14455)
         # load_darknet_weights(self.model, opt.weights)
         self.model.load_state_dict(torch.load(opt.weights, map_location='cpu')['model'], strict=False)
         self.model.cuda().eval()
