@@ -66,7 +66,7 @@ def track(opt):
     if opt.output_format == 'video':
 #         output_video_path = osp.join(result_root, 'result.mp4')
 #         cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -c:v copy {}'.format(osp.join(result_root, 'frame'), output_video_path)
-        output_video_path = osp.join(result_root,f"{os.path.splitext(os.path.basename(opt.weights))[0]}_{os.path.basename(opt.input_video)}.mp4")
+        output_video_path = osp.join(result_root,f"{os.path.splitext(os.path.basename(opt.weights))[0]}_{os.path.basename(opt.input_video)}")
         cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -b 5000k -c:v mpeg4 {}'.format(osp.join(result_root, 'frame'), output_video_path)
         os.system(cmd_str)
 

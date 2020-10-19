@@ -138,7 +138,7 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
         dataloader = datasets.LoadImages(osp.join(data_root, seq, 'img1'), opt.img_size)
         result_filename = os.path.join(result_root, '{}.txt'.format(seq))
         meta_info = open(os.path.join(data_root, seq, 'seqinfo.ini')).read() 
-        frame_rate = int(meta_info[meta_info.find('frameRate')+10:meta_info.find('\nseqLength')])
+        frame_rate = int(float(meta_info[meta_info.find('frameRate')+10:meta_info.find('\nseqLength')]))
         nf, ta, tc = eval_seq(opt, dataloader, data_type, result_filename,
                               save_dir=output_dir, show_image=show_image, frame_rate=frame_rate)
         n_frame += nf
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     main(opt,
          data_root=data_root,
          seqs=seqs,
-         exp_name=opt.weights.split('/')[-2],
+         exp_name=os.path.splitext(os.path.basename(opt.weights))[0],
          show_image=False,
          save_images=opt.save_images, 
          save_videos=opt.save_videos)
