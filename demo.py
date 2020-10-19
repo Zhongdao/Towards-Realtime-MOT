@@ -40,8 +40,11 @@ def track(opt):
     result_root = opt.output_root if opt.output_root!='' else '.'
     mkdir_if_missing(result_root)
 
-    cfg_dict = parse_model_cfg(opt.cfg)
-    opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
+    if opt.yolo_version=="v3":
+        cfg_dict = parse_model_cfg(opt.cfg)
+        opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
+    else:
+        opt.img_size = [640,640]
 
     # run tracking
     timer = Timer()
@@ -54,15 +57,17 @@ def track(opt):
     frame_rate = dataloader.frame_rate 
 
     frame_dir = None if opt.output_format=='text' else osp.join(result_root, 'frame')
-    try:
-        eval_seq(opt, dataloader, 'mot', result_filename,
-                 save_dir=frame_dir, show_image=False, frame_rate=frame_rate)
-    except Exception as e:
-        logger.info(e)
+#     try:
+    eval_seq(opt, dataloader, 'mot', result_filename,
+             save_dir=frame_dir, show_image=False, frame_rate=frame_rate)
+#     except Exception as e:
+#         logger.info(e)
 
     if opt.output_format == 'video':
-        output_video_path = osp.join(result_root, 'result.mp4')
-        cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -c:v copy {}'.format(osp.join(result_root, 'frame'), output_video_path)
+#         output_video_path = osp.join(result_root, 'result.mp4')
+#         cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -c:v copy {}'.format(osp.join(result_root, 'frame'), output_video_path)
+        output_video_path = osp.join(result_root,f"{os.path.splitext(os.path.basename(opt.weights))[0]}_{os.path.basename(opt.input_video)}")
+        cmd_str = 'ffmpeg -f image2 -i {}/%05d.jpg -b 5000k -c:v mpeg4 {}'.format(osp.join(result_root, 'frame'), output_video_path)
         os.system(cmd_str)
 
         
@@ -78,6 +83,8 @@ if __name__ == '__main__':
     parser.add_argument('--input-video', type=str, help='path to the input video')
     parser.add_argument('--output-format', type=str, default='video', choices=['video', 'text'], help='Expected output format. Video or text.')
     parser.add_argument('--output-root', type=str, default='results', help='expected output root path')
+    parser.add_argument('--yolo-version', type=str, default='v5', help='v5/ v3')
+
     parser.add_argument('--joint-model', type=str, default="yolov5", help="select the joint model yolov3/yolov5")
 
     opt = parser.parse_args()

@@ -1,3 +1,4 @@
+**/*.ipynb
 results/
 weights/
 data/mot17
@@ -120,3 +121,4 @@ venv.bak/
 .html  # Bokeh Plots
 .pg  # TensorFlow Frozen Graphs
 .avi # videos
+demos/*

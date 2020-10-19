@@ -121,8 +121,11 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
     data_type = 'mot'
 
     # Read config
-    cfg_dict = parse_model_cfg(opt.cfg)
-    opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
+    if opt.yolo_version=="v3":
+        cfg_dict = parse_model_cfg(opt.cfg)
+        opt.img_size = [int(cfg_dict[0]['width']), int(cfg_dict[0]['height'])]
+    else:
+        opt.img_size = [640,640]
 
     # run tracking
     accs = []
@@ -135,7 +138,7 @@ def main(opt, data_root='/data/MOT16/train', det_root=None, seqs=('MOT16-05',), 
         dataloader = datasets.LoadImages(osp.join(data_root, seq, 'img1'), opt.img_size)
         result_filename = os.path.join(result_root, '{}.txt'.format(seq))
         meta_info = open(os.path.join(data_root, seq, 'seqinfo.ini')).read() 
-        frame_rate = int(meta_info[meta_info.find('frameRate')+10:meta_info.find('\nseqLength')])
+        frame_rate = int(float(meta_info[meta_info.find('frameRate')+10:meta_info.find('\nseqLength')]))
         nf, ta, tc = eval_seq(opt, dataloader, data_type, result_filename,
                               save_dir=output_dir, show_image=show_image, frame_rate=frame_rate)
         n_frame += nf
@@ -179,15 +182,19 @@ if __name__ == '__main__':
     parser.add_argument('--nms-thres', type=float, default=0.4, help='iou threshold for non-maximum suppression')
     parser.add_argument('--min-box-area', type=float, default=200, help='filter out tiny boxes')
     parser.add_argument('--track-buffer', type=int, default=30, help='tracking buffer')
+    parser.add_argument('--data_dir', type=str, default="/home/jovyan/dataset/tracking/fairmot", help='tracking buffer')
     parser.add_argument('--test-mot16', action='store_true', help='tracking buffer')
+    parser.add_argument('--test-mot17', action='store_true', help='tracking buffer')
+    parser.add_argument('--test-store', action='store_true', help='tracking buffer')
     parser.add_argument('--save-images', action='store_true', help='save tracking results (image)')
     parser.add_argument('--save-videos', action='store_true', help='save tracking results (video)')
     parser.add_argument('--joint-model',type=str, default="yolov5", help= "select the joint model yolov3/yolov5")
 
+    parser.add_argument('--yolo-version', type=str, default='v5', help='v5/ v3')
     opt = parser.parse_args()
     print(opt, end='\n\n')
  
-    if not opt.test_mot16:
+    if opt.test_mot17:
         seqs_str = '''MOT17-02-SDP
                       MOT17-04-SDP
                       MOT17-05-SDP
@@ -197,7 +204,7 @@ if __name__ == '__main__':
                       MOT17-13-SDP
                     '''
         data_root = '/home/wangzd/datasets/MOT/MOT17/images/train'
-    else:
+    elif opt.test_mot16:
         seqs_str = '''MOT16-01
                      MOT16-03
                      MOT16-06
@@ -206,12 +213,27 @@ if __name__ == '__main__':
                      MOT16-12
                      MOT16-14'''
         data_root = '/home/wangzd/datasets/MOT/MOT16/images/test'
+
+    if opt.test_store:
+        seqs_str = '''soch_cam5
+                      soch_cam3
+                      nike
+                      pe_cam1
+                      pe_cam6
+                      pe2_cam1
+                      pe2_cam2
+                      hm_cam1
+                      hm_cam2
+                      hm_cam3
+                      '''
+        data_root = os.path.join(opt.data_dir, 'store/test')
+
     seqs = [seq.strip() for seq in seqs_str.split()]
 
     main(opt,
          data_root=data_root,
          seqs=seqs,
-         exp_name=opt.weights.split('/')[-2],
+         exp_name=os.path.splitext(os.path.basename(opt.weights))[0],
          show_image=False,
          save_images=opt.save_images, 
          save_videos=opt.save_videos)

@@ -20,7 +20,7 @@ class Detect(nn.Module):
     stride = None  # strides computed during build
     export = False  # onnx export
 
-    def __init__(self, nc=80, anchors=(), ch=()):  # detection layer
+    def __init__(self, nc=80, anchors=(), ch=(),emb_size=512):  # detection layer
         super(Detect, self).__init__()
         self.nc = nc  # number of classes
         self.no = nc + 5  # number of outputs per anchor
@@ -31,7 +31,8 @@ class Detect(nn.Module):
         self.register_buffer('anchors', a)  # shape(nl,na,2)
         self.register_buffer('anchor_grid', a.clone().view(self.nl, 1, -1, 1, 1, 2))  # shape(nl,1,na,1,1,2)
         self.m = nn.ModuleList(nn.Conv2d(x, self.no * self.na, 1) for x in ch)  # output conv
-
+        self.emb_size = emb_size
+        
     def forward(self, x):
 
         # x = x.copy()  # for profiling
@@ -39,12 +40,12 @@ class Detect(nn.Module):
         x, emb=x[:3], x[3:]
         self.training |= self.export
         for i in range(self.nl):
-            print(f"input x: {x[i].shape}")
+#             print(f"input x: {x[i].shape}")
             x[i] = self.m[i](x[i])  # conv
-            print(f"output x: {x[i].shape}")
+#             print(f"output x: {x[i].shape}")
             bs, _, ny, nx = x[i].shape  # x(bs,255,20,20) to x(bs,3,20,20,85)
             x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
-            print(f"reshape x: {x[i].shape}")
+#             print(f"reshape x: {x[i].shape}")
             if not self.training:  # inference
                 if self.grid[i].shape[2:4] != x[i].shape[2:4]:
                     self.grid[i] = self._make_grid(nx, ny).to(x[i].device)
@@ -52,12 +53,17 @@ class Detect(nn.Module):
                 y = x[i].sigmoid()
                 y[..., 0:2] = (y[..., 0:2] * 2. - 0.5 + self.grid[i].to(x[i].device)) * self.stride[i]  # xy
                 y[..., 2:4] = (y[..., 2:4] * 2) ** 2 * self.anchor_grid[i]  # wh
+                out_channel = self.no
                 if len(emb)>0:
-                    p_emb = F.normalize(emb[i].permute(0,2,3,1).unsqueeze(1).repeat(1, self.nA, 1, 1, 1).contiguous(), dim=-1)
+                    p_emb = F.normalize(emb[i].permute(0,2,3,1).unsqueeze(1).repeat(1, self.na, 1, 1, 1).contiguous(), dim=-1)
+                    if p_emb.shape[-1]!=self.emb_size:
+                        factor = self.emb_size/p_emb.shape[-1]
+                        p_emb = F.interpolate(p_emb,scale_factor=(1,1,factor))
                     y = torch.cat([y,p_emb],dim=-1)
-                z.append(y.view(bs, -1, self.no))
-
-        return x if self.training else (torch.cat(z, 1), x)
+                    out_channel = self.no + self.emb_size
+                y = y.view(bs, -1, out_channel)
+                z.append(y)
+        return x if self.training else torch.cat(z, 1)
 
     @staticmethod
     def _make_grid(nx=20, ny=20):
@@ -136,11 +142,11 @@ class Model(nn.Module):
                     _ = m(x)
                 dt.append((time_synchronized() - t) * 100)
                 print('%10.1f%10.0f%10.1fms %-40s' % (o, m.np, dt[-1], m.type))
-            if type(m)==Detect:
-                print(f"input to detect layer {[i.shape for i in x]}")
+#             if type(m)==Detect:
+#                 print(f"input to detect layer {[i.shape for i in x]}")
             x = m(x)  # run
-            if type(m)==Detect:
-                print(f"output from detect layer {[i.shape for i in x]}")
+#             if type(m)==Detect:
+#                 print(f"output from detect layer {[i.shape for i in x]}")
             y.append(x if m.i in self.save else None)  # save output
 
         if profile:

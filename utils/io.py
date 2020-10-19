@@ -70,7 +70,7 @@ def read_mot_results(filename, is_gt, is_ignore):
                 linelist = line.split(',')
                 if len(linelist) < 7:
                     continue
-                fid = int(linelist[0])
+                fid = int(float(linelist[0]))
                 if fid < 1:
                     continue
                 results_dict.setdefault(fid, list())
