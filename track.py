@@ -182,6 +182,8 @@ if __name__ == '__main__':
     parser.add_argument('--test-mot16', action='store_true', help='tracking buffer')
     parser.add_argument('--save-images', action='store_true', help='save tracking results (image)')
     parser.add_argument('--save-videos', action='store_true', help='save tracking results (video)')
+    parser.add_argument('--joint-model',type=str, default="yolov5", help= "select the joint model yolov3/yolov5")
+
     opt = parser.parse_args()
     print(opt, end='\n\n')
  

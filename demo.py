@@ -78,6 +78,8 @@ if __name__ == '__main__':
     parser.add_argument('--input-video', type=str, help='path to the input video')
     parser.add_argument('--output-format', type=str, default='video', choices=['video', 'text'], help='Expected output format. Video or text.')
     parser.add_argument('--output-root', type=str, default='results', help='expected output root path')
+    parser.add_argument('--joint-model', type=str, default="yolov5", help="select the joint model yolov3/yolov5")
+
     opt = parser.parse_args()
     print(opt, end='\n\n')
 

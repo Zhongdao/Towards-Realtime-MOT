@@ -1,9 +1,8 @@
 import argparse
 import json
-import time
 from time import gmtime, strftime
 import test
-from models import *
+from detector.yolov3.model import *
 from shutil import copyfile
 from utils.datasets import JointDataset, collate_fn
 from utils.utils import *
@@ -200,6 +199,7 @@ if __name__ == '__main__':
     parser.add_argument('--test-interval', type=int, default=9, help='test interval')
     parser.add_argument('--lr', type=float, default=1e-2, help='init lr')
     parser.add_argument('--unfreeze-bn', action='store_true', help='unfreeze bn')
+    parser.add_argument('--joint-model', type=str, default="yolov5", help="select the joint model yolov3/yolov5")
     opt = parser.parse_args()
 
     init_seeds()

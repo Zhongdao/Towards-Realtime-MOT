@@ -1,15 +1,12 @@
 import argparse
 import json
-import time
-from pathlib import Path
 
 from sklearn import metrics
 from scipy import interpolate
-import torch.nn.functional as F
-from models import *
+from detector.yolov3.model import *
 from utils.utils import *
 from torchvision.transforms import transforms as T
-from utils.datasets import LoadImagesAndLabels, JointDataset, collate_fn
+from utils.datasets import JointDataset, collate_fn
 
 def test(
         cfg,
@@ -233,6 +230,7 @@ if __name__ == '__main__':
     parser.add_argument('--nms-thres', type=float, default=0.5, help='iou threshold for non-maximum suppression')
     parser.add_argument('--print-interval', type=int, default=10, help='size of each image dimension')
     parser.add_argument('--test-emb', action='store_true', help='test embedding')
+    parser.add_argument('--joint-model', type=str, default="yolov5", help="select the joint model yolov3/yolov5")
     opt = parser.parse_args()
     print(opt, end='\n\n')
 
