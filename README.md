@@ -1,5 +1,6 @@
 # Towards-Realtime-MOT
 **NEWS:** 
+- **[2021.06.01]** A [nice re-implementation](https://github.com/PaddlePaddle/PaddleDetection/tree/release/2.1/configs/mot) (and document) by Baidu [PaddlePaddle](https://github.com/PaddlePaddle) team!
 - **[2020.07.14]** Our paper is accepted to ECCV 2020!
 - **[2020.01.29]** More models uploaded! The fastest one runs at around **38 FPS!**. 
 - **[2019.10.11]** Training and evaluation data uploaded! Please see [DATASET_ZOO.md](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md) for details.
