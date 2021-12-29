@@ -94,8 +94,8 @@ If you find this repo useful in your project or research, please consider citing
 @article{wang2019towards,
   title={Towards Real-Time Multi-Object Tracking},
   author={Wang, Zhongdao and Zheng, Liang and Liu, Yixuan and Wang, Shengjin},
-  journal={arXiv preprint arXiv:1909.12605},
-  year={2019}
+  journal={The European Conference on Computer Vision (ECCV)},
+  year={2020}
 }
 ```
 
