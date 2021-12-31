@@ -50,6 +50,7 @@ def train(
     dataset = JointDataset(dataset_root, trainset_paths, img_size, augment=True, transforms=transforms)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True,
                                              num_workers=8, pin_memory=True, drop_last=True, collate_fn=collate_fn)
+    print("batch size","======",batch_size)
     # Initialize model
     model = Darknet(cfg, dataset.nID)
 
@@ -86,7 +87,10 @@ def train(
         optimizer = torch.optim.SGD(filter(lambda x: x.requires_grad, model.parameters()), lr=opt.lr, momentum=.9,
                                     weight_decay=1e-4)
 
-    model = torch.nn.DataParallel(model)
+    #model = torch.nn.DataParallel(model)
+    torch.distributed.init_process_group(backend="nccl") 
+    model = torch.nn.parallel.DistributedDataParallel(model, find_unused_parameters=True) 
+
     # Set scheduler
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
                                                      milestones=[int(0.5 * opt.epochs), int(0.75 * opt.epochs)],
@@ -157,6 +161,8 @@ def train(
                       'model': model.module.state_dict(),
                       'optimizer': optimizer.state_dict()}
 
+        if not os.path.exists(weights_to + '/cfg/'):
+            os.mkdir(weights_to+'/cfg/')
         copyfile(cfg, weights_to + '/cfg/yolo3.cfg')
         copyfile(data_cfg, weights_to + '/cfg/ccmcpe.json')
 
@@ -170,10 +176,10 @@ def train(
         # Calculate mAP
         if epoch % opt.test_interval == 0:
             with torch.no_grad():
-                mAP, R, P = test.test(cfg, data_cfg, weights=latest, batch_size=batch_size, img_size=img_size,
-                                      print_interval=40, nID=dataset.nID)
-                test.test_emb(cfg, data_cfg, weights=latest, batch_size=batch_size, img_size=img_size,
-                              print_interval=40, nID=dataset.nID)
+                mAP, R, P = test.test(cfg, data_cfg, weights=latest, batch_size=batch_size,
+                                      print_interval=40)
+                test.test_emb(cfg, data_cfg, weights=latest, batch_size=batch_size,
+                              print_interval=40)
 
         # Call scheduler.step() after opimizer.step() with pytorch > 1.1.0
         scheduler.step()
@@ -181,6 +187,7 @@ def train(
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--local_rank')
     parser.add_argument('--epochs', type=int, default=30, help='number of epochs')
     parser.add_argument('--batch-size', type=int, default=32, help='size of each image batch')
     parser.add_argument('--accumulated-batches', type=int, default=1, help='number of batches before optimizer step')
